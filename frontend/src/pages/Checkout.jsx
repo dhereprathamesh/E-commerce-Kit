@@ -191,8 +191,8 @@ export default function Checkout() {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const response = await api.get("/users/addresses"); // Assumed endpoint for user addresses
-        const addressData = response.data || [];
+        const response = await api.get("/addresses"); // Assumed endpoint for user addresses
+        const addressData = response.data.data || [];
         setAddresses(addressData);
 
         // Auto-select default address if it exists
@@ -308,6 +308,8 @@ export default function Checkout() {
             navigate(`/order-confirmation/${createdOrder.id}`);
             // eslint-disable-next-line no-unused-vars
           } catch (verifyErr) {
+            console.log(verifyErr);
+
             setCheckoutError(
               "Payment verification failed. Please contact support.",
             );

@@ -3,187 +3,161 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
+  const [metrics, setMetrics] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    lowStockCount: 0,
+  });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchStats = async () => {
       try {
         setLoading(true);
-        // Execute analytics calls concurrently via promise orchestration
-        const [statsRes, ordersRes] = await Promise.all([
-          api.get("/admin/analytics/summary"),
-          api.get("/admin/orders?limit=5"),
+        setError(null);
+
+        // Concurrently call your existing backend endpoints
+        const [ordersRes, productsRes] = await Promise.all([
+          api.get("/orders/my"),
+          api.get("/products"),
         ]);
 
-        setStats(statsRes.data);
-        setRecentOrders(ordersRes.data?.orders || ordersRes.data || []);
+        // Your backend returns items wrapped inside a "data" object field
+        const adminSpecificOrders = ordersRes.data?.data || [];
+        const masterProductsList = productsRes.data?.data || [];
+
+        // Aggregate statistics using frontend calculation loops
+        const revenueCalculated = adminSpecificOrders.reduce(
+          (sum, order) => sum + (order.finalAmount || 0),
+          0,
+        );
+        const warningInventoryCount = masterProductsList.filter(
+          (p) => p.stock <= 5,
+        ).length;
+
+        setMetrics({
+          totalRevenue: revenueCalculated,
+          totalOrders: adminSpecificOrders.length,
+          lowStockCount: warningInventoryCount,
+        });
+
+        // Slice the array to showcase the top 5 recent orders
+        setRecentOrders(adminSpecificOrders.slice(0, 5));
       } catch (err) {
-        console.error("Error fetching admin cockpit data structure:", err);
-        setError("Failed to fetch store metrics. Verify admin token claims.");
+        console.error("Dashboard compilation failed:", err);
+        setError(
+          "Failed to fetch store data pipelines. Check console network panels.",
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboardData();
+    fetchStats();
   }, []);
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="p-8 text-sm font-medium text-slate-500 animate-pulse">
-        Loading Backoffice Analytics Engine...
+      <div className="p-6 text-sm text-slate-500 animate-pulse">
+        Loading live operational ledger...
       </div>
     );
-  }
-
-  if (error) {
+  if (error)
     return (
-      <div className="p-8 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg m-6">
+      <div className="p-6 text-sm text-rose-600 bg-rose-50 border rounded-lg m-6">
         {error}
       </div>
     );
-  }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Header Info Block */}
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          Backoffice Commerce Cockpit
+          Admin Cockpit Dashboard
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          Real-time aggregate performance insights and fulfillment data
-          pipelines.
+          Real-time stats compiled from active store administrative profiles.
         </p>
       </div>
 
-      {/* KPI Cards Performance Row Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Revenue Metric */}
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <dt className="truncate text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Total Revenue
-          </dt>
-          <dd className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            ${stats?.totalRevenue?.toFixed(2) || "0.00"}
-          </dd>
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-5 bg-white border rounded-lg shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Profile Gross Revenue
+          </p>
+          <p className="text-2xl font-bold mt-1">
+            ${metrics.totalRevenue.toFixed(2)}
+          </p>
         </div>
-
-        {/* Total Orders Metric */}
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <dt className="truncate text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Orders Processed
-          </dt>
-          <dd className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            {stats?.totalOrders || 0}
-          </dd>
+        <div className="p-5 bg-white border rounded-lg shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Orders Logged
+          </p>
+          <p className="text-2xl font-bold mt-1">
+            {metrics.totalOrders} checkouts
+          </p>
         </div>
-
-        {/* Total Customers Metric */}
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <dt className="truncate text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Active Customers
-          </dt>
-          <dd className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            {stats?.totalCustomers || 0}
-          </dd>
-        </div>
-
-        {/* Low Stock Warning Alert Counter */}
-        <div
-          className={`overflow-hidden rounded-lg border p-5 shadow-sm ${stats?.lowStockCount > 0 ? "bg-amber-50/50 border-amber-200" : "bg-white border-slate-200"}`}
-        >
-          <dt className="truncate text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Inventory Warnings
-          </dt>
-          <dd
-            className={`mt-2 text-3xl font-bold tracking-tight ${stats?.lowStockCount > 0 ? "text-amber-700" : "text-slate-900"}`}
-          >
-            {stats?.lowStockCount || 0} items
-          </dd>
+        <div className="p-5 bg-white border rounded-lg shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Critical Stock Warnings
+          </p>
+          <p className="text-2xl font-bold mt-1 text-amber-600">
+            {metrics.lowStockCount} items
+          </p>
         </div>
       </div>
 
-      {/* Core Audit Log Management Table View */}
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Recent Order Submissions
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Latest consumer checkout actions pending batch sync processing.
-            </p>
-          </div>
+      {/* Recent Orders Log View */}
+      <div className="border bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b bg-slate-50 flex items-center justify-between">
+          <h3 className="font-semibold text-slate-800">Recent Checkout Logs</h3>
           <Link
             to="/admin/orders"
             className="text-xs font-semibold text-blue-600 hover:underline"
           >
-            View All Orders &rarr;
+            View All &rarr;
           </Link>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm text-slate-600">
-            <thead className="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+        <table className="w-full text-left text-sm text-slate-600">
+          <thead className="bg-slate-100 text-xs font-bold uppercase tracking-wider border-b text-slate-400">
+            <tr>
+              <th className="p-4">Order Code</th>
+              <th className="p-4">Final Price</th>
+              <th className="p-4">Fulfillment State</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {recentOrders.length === 0 ? (
               <tr>
-                <th className="px-6 py-3">Order ID</th>
-                <th className="px-6 py-3">Customer</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Amount</th>
-                <th className="px-6 py-3">Date</th>
+                <td
+                  colSpan="3"
+                  className="p-6 text-center text-slate-400 text-xs"
+                >
+                  No orders recorded for this identity.
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentOrders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-8 text-center text-slate-400 text-xs"
-                  >
-                    No transaction items found.
+            ) : (
+              recentOrders.map((order) => (
+                <tr key={order.id} className="hover:bg-slate-50/50">
+                  <td className="p-4 font-mono text-xs">
+                    {order.id.slice(0, 8).toUpperCase()}
+                  </td>
+                  <td className="p-4 font-medium text-slate-900">
+                    ${order.finalAmount?.toFixed(2)}
+                  </td>
+                  <td className="p-4">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                      {order.status}
+                    </span>
                   </td>
                 </tr>
-              ) : (
-                recentOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 font-mono text-xs text-slate-900">
-                      {order.id.substring(0, 8)}...
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {order.user?.name || "Guest/Deleted"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${
-                          order.status === "DELIVERED"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                            : order.status === "SHIPPED"
-                              ? "bg-blue-50 text-blue-700 border-blue-100"
-                              : "bg-amber-50 text-amber-700 border-amber-100"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-slate-900">
-                      ${order.finalAmount?.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-slate-400 text-xs">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

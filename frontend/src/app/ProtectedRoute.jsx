@@ -4,6 +4,8 @@ import { useAuthStore } from "../store/authStore";
 // eslint-disable-next-line react/prop-types
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const { user, token } = useAuthStore();
+  console.log("adminnnn", adminOnly);
+
   const location = useLocation();
 
   // 1. If not logged in, redirect to login page and save intended location

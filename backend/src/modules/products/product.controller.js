@@ -9,6 +9,8 @@ const {
 
 const create = async (req, res, next) => {
   try {
+    console.log(req.body);
+
     const product = await createProduct(req.body);
 
     res.status(201).json({
