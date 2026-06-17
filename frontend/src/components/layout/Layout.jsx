@@ -3,6 +3,8 @@ import Footer from "./Footer";
 
 // eslint-disable-next-line react/prop-types
 export default function Layout({ children }) {
+  console.log("Layout.js");
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
