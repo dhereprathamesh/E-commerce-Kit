@@ -23,10 +23,17 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
+import { useEffect } from "react";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, getCartTotal } = useCartStore();
+
+  const { items, fetchCart, updateQuantity, removeItem, getCartTotal } =
+    useCartStore();
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   const total = getCartTotal();
 
@@ -64,93 +71,85 @@ export default function Cart() {
             role="list"
             className="divide-y divide-slate-200 border-t border-b border-slate-200"
           >
-            {items.map((item) => (
-              <li
-                key={`${item.productId}-${item.variantId}`}
-                className="flex py-6 sm:py-10"
-              >
-                <div className="flex-shrink-0">
-                  <img
-                    src={item.image || "https://via.placeholder.com/150"}
-                    alt={item.name}
-                    className="h-24 w-24 rounded-md object-cover object-center sm:h-32 sm:w-32"
-                  />
-                </div>
+            {items &&
+              items.map((item) => (
+                <li
+                  // key={`${item.productId}-${item.variantId}`}
+                  key={item.id}
+                  className="flex py-6 sm:py-10"
+                >
+                  <div className="flex-shrink-0">
+                    <img
+                      src={item.image || "https://via.placeholder.com/150"}
+                      alt={item.name}
+                      className="h-24 w-24 rounded-md object-cover object-center sm:h-32 sm:w-32"
+                    />
+                  </div>
 
-                <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
-                  <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                    <div>
-                      <div className="flex justify-between">
-                        <h3 className="text-sm">
-                          <Link
-                            to={`/products/${item.productId}`}
-                            className="font-medium text-slate-700 hover:text-slate-800"
-                          >
-                            {item.name}
-                          </Link>
-                        </h3>
-                      </div>
-                      {item.variantName && (
-                        <p className="mt-1 text-sm text-slate-500">
-                          {item.variantName}
+                  <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
+                    <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
+                      <div>
+                        <div className="flex justify-between">
+                          <h3 className="text-sm">
+                            <Link
+                              to={`/products/${item.product?.slug}`}
+                              className="font-medium text-slate-700 hover:text-slate-800"
+                            >
+                              {item.name}
+                            </Link>
+                          </h3>
+                        </div>
+                        {item.variantName && (
+                          <p className="mt-1 text-sm text-slate-500">
+                            {item.variantName}
+                          </p>
+                        )}
+                        <p className="mt-1 text-sm font-medium text-slate-900">
+                          ${item.price}
                         </p>
-                      )}
-                      <p className="mt-1 text-sm font-medium text-slate-900">
-                        ${item.price}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 sm:mt-0 sm:pr-9">
-                      {/* Quantity Toggler */}
-                      <div className="flex items-center border border-slate-300 rounded w-max">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateQuantity(
-                              item.productId,
-                              item.variantId,
-                              item.quantity - 1,
-                            )
-                          }
-                          className="px-2 py-0.5 text-slate-600 hover:bg-slate-100"
-                        >
-                          -
-                        </button>
-                        <span className="px-3 text-sm font-medium text-slate-900">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateQuantity(
-                              item.productId,
-                              item.variantId,
-                              item.quantity + 1,
-                            )
-                          }
-                          className="px-2 py-0.5 text-slate-600 hover:bg-slate-100"
-                        >
-                          +
-                        </button>
                       </div>
 
-                      {/* Remove Button */}
-                      <div className="absolute top-0 right-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeItem(item.productId, item.variantId)
-                          }
-                          className="-m-2 inline-flex p-2 text-slate-400 hover:text-slate-500 text-sm font-medium"
-                        >
-                          Remove
-                        </button>
+                      <div className="mt-4 sm:mt-0 sm:pr-9">
+                        {/* Quantity Toggler */}
+                        <div className="flex items-center border border-slate-300 rounded w-max">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
+                            className="px-2 py-0.5 text-slate-600 hover:bg-slate-100"
+                          >
+                            -
+                          </button>
+                          <span className="px-3 text-sm font-medium text-slate-900">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="px-2 py-0.5 text-slate-600 hover:bg-slate-100"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Remove Button */}
+                        <div className="absolute top-0 right-0">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            className="-m-2 inline-flex p-2 text-slate-400 hover:text-slate-500 text-sm font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              ))}
           </ul>
         </section>
 

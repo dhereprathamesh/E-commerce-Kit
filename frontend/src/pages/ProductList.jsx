@@ -60,7 +60,7 @@ export default function ProductList() {
     const fetchMetadata = async () => {
       try {
         const catRes = await api.get("/categories");
-        setCategories(catRes.data || []);
+        setCategories(catRes.data.data || []);
       } catch (err) {
         console.error("Failed fetching runtime categories:", err);
       }
@@ -80,7 +80,7 @@ export default function ProductList() {
         if (searchQuery) params.append("search", searchQuery);
 
         const response = await api.get(`/products?${params.toString()}`);
-        setProducts(response.data?.products || response.data || []);
+        setProducts(response.data?.data || response.data || []);
       } catch (err) {
         console.error("Error compiling product listing array:", err);
       } finally {

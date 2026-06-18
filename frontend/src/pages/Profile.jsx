@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const { user } = useAuthStore();
@@ -151,13 +152,14 @@ export default function Profile() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* COLUMN 1: USER METADATA CARD */}
+        {/* COLUMN 1: USER METADATA CARD */}
         <div className="lg:col-span-1">
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-slate-900">
               User Identification
             </h2>
             <hr className="border-slate-100" />
-            <div className="space-y-3 text-sm">
+            <div className="space-y-4 text-sm">
               <div>
                 <label className="block text-xs uppercase font-bold text-slate-400 tracking-wider">
                   Account Name
@@ -181,6 +183,29 @@ export default function Profile() {
                 <span className="mt-1 inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-100">
                   {user?.role || "CUSTOMER"}
                 </span>
+              </div>
+
+              {/* --- ADDED: QUICK ACTIONS NAVIGATION TRACKER PANEL --- */}
+              <div className="pt-4 border-t border-slate-100">
+                <Link
+                  to="/orders"
+                  className="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 text-center transition duration-150 shadow-sm"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    />
+                  </svg>
+                  View Order History
+                </Link>
               </div>
             </div>
           </div>

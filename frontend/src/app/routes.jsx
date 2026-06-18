@@ -132,6 +132,8 @@ import AdminDashboard from "../pages/AdminDashboard";
 import AdminProducts from "../pages/AdminProducts";
 import AdminProductCreate from "../pages/AdminProductCreate";
 import AdminOrders from "../pages/AdminOrders";
+import OrderConfirmation from "../pages/OrderConfirmation";
+import OrderTracking from "../pages/OrderTracking";
 
 export default function AppRoutes() {
   console.log(
@@ -162,6 +164,22 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <OrderHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order-confirmation/:orderId"
+        element={
+          <ProtectedRoute>
+            <OrderConfirmation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order-tracking/:orderId"
+        element={
+          <ProtectedRoute>
+            <OrderTracking />
           </ProtectedRoute>
         }
       />

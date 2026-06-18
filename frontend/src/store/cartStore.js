@@ -1,85 +1,106 @@
 import { create } from "zustand";
-
-// Safe fallback utility to get items from storage on start
-const getInitialCart = () => {
-  try {
-    const savedCart = localStorage.getItem("cartItems");
-    return savedCart ? JSON.parse(savedCart) : [];
-  } catch (error) {
-    console.error("Error loading cart items from storage:", error);
-    return [];
-  }
-};
+import api from "../services/api";
 
 export const useCartStore = create((set, get) => ({
-  items: getInitialCart(),
+  items: [],
+  loading: false,
 
-  // Add Item to Cart Action
-  addItem: (newItem) => {
-    const currentItems = get().items;
+  // 1. Fetch cart from backend
+  fetchCart: async () => {
+    try {
+      set({ loading: true });
 
-    // Check if the exact same item and configuration variant already exists
-    const existingItemIdx = currentItems.findIndex(
-      (item) =>
-        item.productId === newItem.productId &&
-        item.variantId === newItem.variantId,
-    );
+      const res = await api.get("/cart");
 
-    let updatedItems;
+      const cart = res.data?.data;
 
-    if (existingItemIdx > -1) {
-      // If it exists, merge and increment the quantity counter
-      updatedItems = [...currentItems];
-      updatedItems[existingItemIdx].quantity += newItem.quantity;
-    } else {
-      // If it is entirely unique, append it to the active stack
-      updatedItems = [...currentItems, newItem];
+      set({
+        items: Array.isArray(cart?.items) ? cart.items : [],
+      });
+    } catch (err) {
+      console.error("fetchCart error:", err);
+      set({ items: [] });
+    } finally {
+      set({ loading: false });
     }
-
-    localStorage.setItem("cartItems", JSON.stringify(updatedItems));
-    set({ items: updatedItems });
   },
 
-  // Update Item Quantity Action
-  updateQuantity: (productId, variantId, newQty) => {
+  // 2. Add item (API)
+  addItem: async (payload) => {
+    try {
+      set({ loading: true });
+
+      await api.post("/cart/add", payload);
+
+      const res = await api.get("/cart");
+      const cart = res.data?.data;
+
+      set({
+        items: Array.isArray(cart?.items) ? cart.items : [],
+      });
+    } catch (err) {
+      console.error("addItem error:", err);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  // 3. Update quantity (uses itemId from backend)
+  updateQuantity: async (itemId, newQty) => {
     if (newQty < 1) return;
 
-    const updatedItems = get().items.map((item) => {
-      if (item.productId === productId && item.variantId === variantId) {
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    });
+    try {
+      await api.put(`/cart/update/${itemId}`, {
+        quantity: newQty,
+      });
 
-    localStorage.setItem("cartItems", JSON.stringify(updatedItems));
-    set({ items: updatedItems });
+      const res = await api.get("/cart");
+      const cart = res.data?.data;
+
+      set({
+        items: Array.isArray(cart?.items) ? cart.items : [],
+      });
+    } catch (err) {
+      console.error("updateQuantity error:", err);
+    }
   },
 
-  // Remove Item from Cart Action
-  removeItem: (productId, variantId) => {
-    const updatedItems = get().items.filter(
-      (item) => !(item.productId === productId && item.variantId === variantId),
-    );
+  // 4. Remove item
+  removeItem: async (itemId) => {
+    try {
+      await api.delete(`/cart/remove/${itemId}`);
 
-    localStorage.setItem("cartItems", JSON.stringify(updatedItems));
-    set({ items: updatedItems });
+      const res = await api.get("/cart");
+      const cart = res.data?.data;
+
+      set({
+        items: Array.isArray(cart?.items) ? cart.items : [],
+      });
+    } catch (err) {
+      console.error("removeItem error:", err);
+    }
   },
 
-  // Clear Cart Entirely (Post-checkout cleanup)
-  clearCart: () => {
-    localStorage.removeItem("cartItems");
-    set({ items: [] });
-  },
+  // 5. Clear cart (optional if backend supports)
+  clearCart: () => set({ items: [] }),
 
-  // Utility Getters for computed UI calculations
+  // 6. Derived values (still OK client-side)
   getCartTotal: () => {
-    return get().items.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0,
-    );
+    const items = get().items;
+
+    if (!Array.isArray(items)) return 0;
+
+    return items.reduce((total, item) => {
+      const price = item.product?.price || 0;
+      return total + price * (item.quantity || 0);
+    }, 0);
   },
 
   getCartCount: () => {
-    return get().items.reduce((count, item) => count + item.quantity, 0);
+    const items = get().items;
+
+    if (!Array.isArray(items)) return 0;
+
+    return items.reduce((count, item) => count + (item.quantity || 0), 0);
   },
 }));

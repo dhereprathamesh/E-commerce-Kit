@@ -132,24 +132,32 @@ export default function ProductDetail() {
     );
   }
 
-  const handleAddToCart = () => {
-    // Dispatch item payload to our upcoming Zustand store hook
-    addItemToCart({
+  // const handleAddToCart = () => {
+  //   // Dispatch item payload to our upcoming Zustand store hook
+  //   addItemToCart({
+  //     productId: product.id,
+  //     name: product.name,
+  //     price: selectedVariant?.price || product.price,
+  //     image: activeImage,
+  //     variantId: selectedVariant?.id || null,
+  //     variantName: selectedVariant
+  //       ? `${selectedVariant.name}: ${selectedVariant.value}`
+  //       : null,
+  //     quantity: quantity,
+  //   });
+
+  //   // Smooth user feedback: open cart or show toast confirmation
+  //   navigate("/cart");
+  // };
+  const handleAddToCart = async () => {
+    await addItemToCart({
       productId: product.id,
-      name: product.name,
-      price: selectedVariant?.price || product.price,
-      image: activeImage,
       variantId: selectedVariant?.id || null,
-      variantName: selectedVariant
-        ? `${selectedVariant.name}: ${selectedVariant.value}`
-        : null,
-      quantity: quantity,
+      quantity,
     });
 
-    // Smooth user feedback: open cart or show toast confirmation
     navigate("/cart");
   };
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">

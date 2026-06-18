@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../lib/api";
+import api from "../services/api";
 
 const ORDER_STEPS = [
   "PENDING",
@@ -19,7 +19,7 @@ export default function OrderTracking() {
     const fetchOrderStatus = async () => {
       try {
         const response = await api.get(`/orders/${orderId}`);
-        setOrder(response.data);
+        setOrder(response.data.data);
       } catch (err) {
         console.error("Error fetching live order track data:", err);
       } finally {
