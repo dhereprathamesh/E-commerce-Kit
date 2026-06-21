@@ -134,6 +134,9 @@ import AdminProductCreate from "../pages/AdminProductCreate";
 import AdminOrders from "../pages/AdminOrders";
 import OrderConfirmation from "../pages/OrderConfirmation";
 import OrderTracking from "../pages/OrderTracking";
+import AdminPurchaseOrders from "../pages/AdminPurchaseOrders";
+import AdminSuppliers from "../pages/AdminSuppliers";
+import AdminSupplierCreate from "../pages/AdminSupplierCreate";
 
 export default function AppRoutes() {
   console.log(
@@ -225,7 +228,30 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
+      <Route
+        path="/admin/purchase-orders"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminPurchaseOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/suppliers"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminSuppliers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/suppliers/create"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminSupplierCreate />
+          </ProtectedRoute>
+        }
+      />
       {/* --- CATCH-ALL FALLBACK REDIRECT --- */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

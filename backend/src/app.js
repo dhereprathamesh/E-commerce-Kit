@@ -16,6 +16,7 @@ const addressRoutes = require("./modules/address/address.routes");
 const orderRoutes = require("./modules/order/order.routes");
 const paymentRoutes = require("./modules/payments/payment.routes");
 const reviewRoutes = require("./modules/reviews/review.routes");
+const supplierRoutes = require("./modules/supplier/supplier.routes");
 
 const authMiddleware = require("./middleware/auth.middleware");
 
@@ -56,6 +57,7 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/suppliers", supplierRoutes);
 
 app.use(errorHandler);
 

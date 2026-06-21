@@ -1,5 +1,11 @@
-const admin = (req, res, next) => {
-  console.log(req.user);
+const adminAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized - no user",
+    });
+  }
+
   if (req.user.role !== "ADMIN") {
     return res.status(403).json({
       success: false,
@@ -10,4 +16,4 @@ const admin = (req, res, next) => {
   next();
 };
 
-module.exports = admin;
+module.exports = adminAuth;
