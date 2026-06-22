@@ -1,4 +1,3 @@
-// src/pages/AdminSupplierCreate.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../services/api";
@@ -6,9 +5,10 @@ import api from "../services/api";
 export default function AdminSupplierCreate() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const editId = searchParams.get("edit"); // Check if we are editing an item
+  const editId = searchParams.get("edit");
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState(""); // <-- Added email state
   const [availableProducts, setAvailableProducts] = useState([]);
   const [selectedProductIds, setSelectedProductIds] = useState([]);
 
@@ -16,12 +16,9 @@ export default function AdminSupplierCreate() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // 1. Fetch products so admin can select links
     const fetchProducts = async () => {
       try {
-        const res = await api.get("/products"); // Interceptor automatically handles base URL & headers
-
-        // Defensive check to safely extract products array
+        const res = await api.get("/products");
         if (Array.isArray(res.data)) {
           setAvailableProducts(res.data);
         } else if (res.data && Array.isArray(res.data.data)) {
@@ -34,26 +31,22 @@ export default function AdminSupplierCreate() {
       }
     };
 
-    // 2. If editing, fill input states with original dataset
     const fetchSupplierData = async () => {
       if (!editId) return;
       try {
         setLoading(true);
         const res = await api.get(`/suppliers/${editId}`);
-
-        // Look for data either raw or nested inside res.data.data
         const supplierData = res.data?.data || res.data;
 
         if (supplierData) {
           setName(supplierData.name || "");
-          // Set checked array using mapped IDs returned from your endpoint join
+          setEmail(supplierData.email || ""); // <-- Populate email on edit
           const mappedIds =
             supplierData.products?.map((p) => p.product.id) || [];
           setSelectedProductIds(mappedIds);
         }
       } catch (err) {
         console.log(err);
-
         setError("Failed to fetch target supplier profile.");
       } finally {
         setLoading(false);
@@ -64,7 +57,6 @@ export default function AdminSupplierCreate() {
     fetchSupplierData();
   }, [editId]);
 
-  // Handle product checkbox updates
   const handleCheckboxChange = (productId) => {
     if (selectedProductIds.includes(productId)) {
       setSelectedProductIds(
@@ -75,26 +67,28 @@ export default function AdminSupplierCreate() {
     }
   };
 
-  // Submit payloads to transaction handlers
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return setError("Supplier name required.");
+    if (!email.trim()) return setError("Supplier email required."); // <-- Validation check
 
     try {
       setLoading(true);
-      const payload = { name, product_ids: selectedProductIds };
+      const payload = { name, email, product_ids: selectedProductIds }; // <-- Added email to payload
 
       if (editId) {
-        // Run update transaction routine
         await api.put(`/suppliers/${editId}`, payload);
       } else {
-        // Run clean create profile transaction
         await api.post("/suppliers", payload);
       }
 
       navigate("/admin/suppliers");
     } catch (err) {
-      setError(err.response?.data?.error || "Transaction execution failure.");
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Transaction execution failure.",
+      );
     } finally {
       setLoading(false);
     }
@@ -131,6 +125,21 @@ export default function AdminSupplierCreate() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Apex Global Trading"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            disabled={loading}
+          />
+        </div>
+
+        {/* Email input field (ADDED) */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Supplier Email Address
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g. vendor@apexglobal.com"
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             disabled={loading}
           />
