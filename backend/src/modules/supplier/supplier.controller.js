@@ -4,9 +4,15 @@ const service = require("./supplier.service");
 // CREATE
 const create = async (req, res) => {
   try {
-    const { name, product_ids } = req.body;
+    const { name, email, product_ids } = req.body;
 
-    const supplier = await service.createSupplier(name, product_ids);
+    if (!name || !email) {
+      return res
+        .status(400)
+        .json({ message: "Name and email are required fields." });
+    }
+
+    const supplier = await service.createSupplier(name, email, product_ids);
 
     res.status(201).json(supplier);
   } catch (error) {
@@ -47,11 +53,12 @@ const getById = async (req, res) => {
 // UPDATE
 const update = async (req, res) => {
   try {
-    const { name, product_ids } = req.body;
+    const { name, email, product_ids } = req.body;
 
     const updated = await service.updateSupplier(
       req.params.id,
       name,
+      email,
       product_ids,
     );
 

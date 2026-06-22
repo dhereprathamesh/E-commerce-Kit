@@ -75,7 +75,9 @@ model PurchaseOrder {
 
   totalAmount Float
 
-  notes String?
+  verificationToken String?   @unique
+  tokenExpiresAt    DateTime?
+  notes             String?
 
   createdAt DateTime @default(now())
 

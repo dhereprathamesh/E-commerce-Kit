@@ -3,12 +3,12 @@ const prisma = require("../../config/db");
 const crypto = require("crypto");
 
 // CREATE Supplier + Product mappings
-const createSupplier = async (name, productIds = []) => {
+const createSupplier = async (name, email, productIds = []) => {
   return prisma.$transaction(async (tx) => {
     const supplier = await tx.supplier.create({
       data: {
         name,
-        email: `supplier-${crypto.randomUUID()}@system.internal`,
+        email: email.toLowerCase().trim(),
         password: "placeholder_hashed_password",
       },
     });
@@ -65,11 +65,11 @@ const getSupplierById = async (id) => {
 };
 
 // UPDATE supplier + refresh mappings
-const updateSupplier = async (id, name, productIds = []) => {
+const updateSupplier = async (id, name, email, productIds = []) => {
   return prisma.$transaction(async (tx) => {
     await tx.supplier.update({
       where: { id },
-      data: { name },
+      data: { name, email: email.toLowerCase().trim() },
     });
 
     // delete old mappings
