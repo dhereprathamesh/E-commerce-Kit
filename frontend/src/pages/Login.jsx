@@ -144,7 +144,7 @@ export default function Login() {
       // Fetch the updated user state straight from the store to ensure fresh data
       const freshUser = useAuthStore.getState().user;
 
-      if (freshUser?.role === "ADMIN") {
+      if (freshUser?.userType === "ADMIN") {
         // Force routing straight to backoffice operations
         navigate("/admin/dashboard", { replace: true });
       } else {

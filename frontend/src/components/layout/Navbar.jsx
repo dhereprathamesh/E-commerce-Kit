@@ -3,14 +3,14 @@ import { useAuthStore } from "../../store/authStore";
 
 export default function Navbar() {
   const { user, logout } = useAuthStore();
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.userType === "ADMIN";
 
   return (
     <nav className="border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
-        {/* Brand Logo - Redirects Admins to Dashboard and Customers to Home */}
+        {/* Brand Logo - Redirects Admins to Product Panel and Customers to Home */}
         <Link
-          to={isAdmin ? "/admin/dashboard" : "/"}
+          to={isAdmin ? "/admin/products" : "/"}
           className="text-xl font-bold tracking-tight text-slate-900"
         >
           STORE<span className="text-blue-600">KIT</span>
@@ -26,9 +26,9 @@ export default function Navbar() {
           {isAdmin ? (
             <>
               {/* Admin Backoffice Navigation Links */}
-              <Link to="/admin/dashboard" className="hover:text-slate-900">
+              {/* <Link to="/admin/dashboard" className="hover:text-slate-900">
                 Dashboard
-              </Link>
+              </Link> */}
               <Link to="/admin/products" className="hover:text-slate-900">
                 Products
               </Link>
@@ -46,10 +46,10 @@ export default function Navbar() {
           ) : (
             <>
               {/* Public Standard Shopping Links */}
-              <Link to="/products" className="hover:text-slate-900">
+              <Link to={isAdmin ? "/admin/products" : "/products"} className="hover:text-slate-900">
                 Shop
               </Link>
-              <Link to="/cart" className="hover:text-slate-900">
+              <Link to={isAdmin ? "/admin/products" : "/cart"}  className="hover:text-slate-900">
                 Cart
               </Link>
             </>

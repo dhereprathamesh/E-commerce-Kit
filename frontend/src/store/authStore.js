@@ -19,26 +19,6 @@ export const useAuthStore = create((set) => ({
   loading: false,
   error: null,
 
-  //   login: async (email, password) => {
-  //     set({ loading: true, error: null });
-  //     try {
-  //       const response = await api.post("/auth/login", { email, password });
-  //       console.log("responseresponseresponseresponse", response);
-
-  //       const { user, accessToken } = response.data;
-
-  //       localStorage.setItem("user", JSON.stringify(user));
-  //       localStorage.setItem("token", accessToken);
-
-  //       set({ user, token: accessToken, loading: false });
-  //       return { success: true };
-  //     } catch (err) {
-  //       const errorMsg = err.response?.data?.message || "Login failed.";
-  //       set({ error: errorMsg, loading: false });
-  //       return { success: false, error: errorMsg };
-  //     }
-  //   },
-
   login: async (email, password) => {
     set({ loading: true, error: null });
 
@@ -90,6 +70,49 @@ export const useAuthStore = create((set) => ({
       return { success: true };
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Registration failed.";
+      set({ error: errorMsg, loading: false });
+      return { success: false, error: errorMsg };
+    }
+  },
+
+  verifyOtp: async (email, code) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await api.post("/auth/verify-email", {
+        email,
+        code,
+      });
+
+      // If your backend returns an updated verified user object or new tokens:
+      const { user, accessToken } = response.data;
+
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+      if (accessToken) localStorage.setItem("token", accessToken);
+
+      set((state) => ({
+        user: user ? { ...user } : state.user,
+        token: accessToken ? accessToken : state.token,
+        loading: false,
+      }));
+
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Verification failed.";
+      set({ error: errorMsg, loading: false });
+      return { success: false, error: errorMsg };
+    }
+  },
+
+  sendVerificationOtp: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      // Assuming your backend endpoint for resending or initiating OTP is /auth/resend-otp
+      await api.post("/auth/resend-otp", { email });
+      
+      set({ loading: false });
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Failed to send verification code.";
       set({ error: errorMsg, loading: false });
       return { success: false, error: errorMsg };
     }

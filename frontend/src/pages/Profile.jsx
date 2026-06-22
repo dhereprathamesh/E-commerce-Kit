@@ -181,7 +181,7 @@ export default function Profile() {
                   System Role Privilege
                 </label>
                 <span className="mt-1 inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-100">
-                  {user?.role || "CUSTOMER"}
+                  {user?.userType || "CUSTOMER"}
                 </span>
               </div>
 
