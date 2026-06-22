@@ -223,27 +223,42 @@ export default function Checkout() {
       {/* SAVED ADDRESS SELECTOR INTERFACE */}
       <section className="mb-6">
         <h2 className="text-lg font-medium mb-3">Select Shipping Address</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {addresses.map((addr) => (
-            <div
-              key={addr.id}
-              onClick={() => setSelectedAddressId(addr.id)}
-              className={`border p-4 rounded-lg cursor-pointer transition ${
-                selectedAddressId === addr.id
-                  ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
+        
+        {addresses.length === 0 ? (
+          /* EMPTY STATE BOX WITH NAVIGATE BUTTON */
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 max-w-xl">
+            <p className="text-sm text-gray-500 mb-4">You don't have any saved addresses yet.</p>
+            <button
+              onClick={() => navigate("/profile")} // Adjust this path to match your routing schema
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-md shadow-sm transition"
             >
-              <div className="font-semibold">{addr.fullName}</div>
-              <div className="text-sm text-gray-600 mt-1">
-                {addr.line1}, {addr.city}
+              Add New Address
+            </button>
+          </div>
+        ) : (
+          /* ORIGINAL ADDRESSES GRID - UNTOUCHED */
+          <div className="grid gap-4 md:grid-cols-2">
+            {addresses.map((addr) => (
+              <div
+                key={addr.id}
+                onClick={() => setSelectedAddressId(addr.id)}
+                className={`border p-4 rounded-lg cursor-pointer transition ${
+                  selectedAddressId === addr.id
+                    ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="font-semibold">{addr.fullName}</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {addr.line1}, {addr.city}
+                </div>
+                <div className="text-sm text-gray-500 mt-0.5">
+                  Phone: {addr.phone}
+                </div>
               </div>
-              <div className="text-sm text-gray-500 mt-0.5">
-                Phone: {addr.phone}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* DISCOUNT COUPON CODE SECTION CONTAINER */}
@@ -299,7 +314,7 @@ export default function Checkout() {
 
       <button
         onClick={handlePlaceOrder}
-        disabled={loading || items.length === 0}
+        disabled={loading || items.length === 0 || addresses.length === 0}
         className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 rounded-lg transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading

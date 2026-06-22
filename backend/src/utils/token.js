@@ -4,11 +4,11 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     {
       id: user.id,
-      role: user.role,
+      userType: user.userType,
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "15m",
+      expiresIn: process.env.JWT_ACCESS_EXPIRY,
     },
   );
 };

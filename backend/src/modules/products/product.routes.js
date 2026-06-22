@@ -25,9 +25,9 @@ router.get("/", getAll);
 
 router.get("/:slug", getOne);
 
-router.post("/", auth, admin, validate(createProductSchema), create);
+router.post("/", auth, admin, validate.validateProduct(createProductSchema), create);
 
-router.put("/:id", auth, admin, validate(createProductSchema), update);
+router.put("/:id", auth, admin,validate.validateProduct(createProductSchema), update);
 
 router.delete("/:id", auth, admin, remove);
 

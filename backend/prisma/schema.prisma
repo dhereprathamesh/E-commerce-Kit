@@ -11,16 +11,26 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String
-  role      Role     @default(CUSTOMER)
+  password  String  
+  userType String @default("CUSTOMER")
   isBlocked Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  isEmailVerified     Boolean            @default(false)
+  isActive            Boolean            @default(false)
+  tokenVersion        Int                @default(0)
+  failedLoginAttempts Int                @default(0)
+  lockedUntil         DateTime?
 
   refreshTokens RefreshToken[]
   cart          Cart?
   addresses     Address[]
   orders        Order[]
   reviews       Review[]
+  // Relations
+  memberships         Membership[]
+  verificationCodes   VerificationCode[]
+  invitesCreated      OrgInvite[]        @relation("InvitedBy")
 }
 
 enum PurchaseOrderStatus {
@@ -108,11 +118,6 @@ model RefreshToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-}
-
-enum Role {
-  CUSTOMER
-  ADMIN
 }
 
 model Category {
@@ -326,4 +331,90 @@ model OrderStatusHistory {
   status    OrderStatus
   message   String?
   createdAt DateTime    @default(now())
+}
+
+model Organization {
+  id                         String             @id @default(uuid())
+  name                       String
+  slug                       String             @unique
+  
+  // Lemon Squeezy Tracking Fields
+  lemonSqueezyCustomerId     String?            // Maps to customer ID
+  lemonSqueezySubscriptionId String?            @unique // Unique Subscription ID
+  variantId                  String?            // Maps to your product plan variant ID
+  subscriptionStatus         SubscriptionStatus @default(UNPAID)
+  subscriptionEndsAt         DateTime?
+
+  createdAt                  DateTime           @default(now())
+  updatedAt                  DateTime           @updatedAt
+  memberships                Membership[]
+  invites                    OrgInvite[]
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique // e.g., "ADMIN", "MANAGER", "MEMBER"
+  description String?
+  isSystem    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+
+  memberships Membership[]
+}
+
+// Explicit junction table representing a User's role inside a specific Organization
+model Membership {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  roleId         String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId]) // A user can only have one role per organization
+}
+
+model OrgInvite {
+  id             String       @id @default(uuid())
+  email          String
+  organizationId String
+  roleId         String
+  invitedById    String
+  token          String       @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User         @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@unique([email, organizationId]) // Prevent duplicate active invites to the same person for the same org
+}
+
+model VerificationCode {
+  id        String               @id @default(uuid())
+  userId    String
+  code      String
+  type      VerificationCodeType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime             @default(now())
+
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum VerificationCodeType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
 }

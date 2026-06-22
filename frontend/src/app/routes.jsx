@@ -146,18 +146,18 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* --- PUBLIC ROUTES --- */}
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<ProtectedRoute customerOnly><Home /></ProtectedRoute>} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/products" element={<ProductList />} />
-      <Route path="/products/:slug" element={<ProductDetail />} />
-      <Route path="/cart" element={<Cart />} />
+      <Route path="/products" element={<ProtectedRoute customerOnly><ProductList /></ProtectedRoute>} />
+      <Route path="/products/:slug" element={<ProtectedRoute customerOnly><ProductDetail /></ProtectedRoute>} />
+      <Route path="/cart" element={<ProtectedRoute customerOnly><Cart /></ProtectedRoute>} />
 
       {/* --- PROTECTED CUSTOMER ROUTES --- */}
       <Route
         path="/profile"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute customerOnly>
             <Profile />
           </ProtectedRoute>
         }
@@ -165,7 +165,7 @@ export default function AppRoutes() {
       <Route
         path="/orders"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute customerOnly>
             <OrderHistory />
           </ProtectedRoute>
         }
@@ -173,7 +173,7 @@ export default function AppRoutes() {
       <Route
         path="/order-confirmation/:orderId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute customerOnly>
             <OrderConfirmation />
           </ProtectedRoute>
         }
@@ -181,7 +181,7 @@ export default function AppRoutes() {
       <Route
         path="/order-tracking/:orderId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute customerOnly>
             <OrderTracking />
           </ProtectedRoute>
         }
@@ -189,21 +189,21 @@ export default function AppRoutes() {
       <Route
         path="/checkout"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute customerOnly>
             <Checkout />
           </ProtectedRoute>
         }
       />
 
       {/* --- PROTECTED ADMIN ROUTES (adminOnly={true}) --- */}
-      <Route
+      {/* <Route
         path="/admin/dashboard"
         element={
           <ProtectedRoute adminOnly={true}>
             <AdminDashboard />
           </ProtectedRoute>
         }
-      />
+      /> */}
       <Route
         path="/admin/products"
         element={

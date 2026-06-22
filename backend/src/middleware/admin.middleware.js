@@ -6,7 +6,7 @@ const adminAuth = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== "ADMIN") {
+  if (req.user.userType !== "ADMIN") {
     return res.status(403).json({
       success: false,
       message: "Admin only",
