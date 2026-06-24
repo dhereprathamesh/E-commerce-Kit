@@ -42,14 +42,26 @@ export default function Navbar() {
                 Suppliers
               </Link>
               <Link to="/admin/purchase-orders">Purchase Orders</Link>
+              <Link
+                to="/admin/quotations"
+                className="text-slate-900 font-semibold"
+              >
+                Quotations
+              </Link>
             </>
           ) : (
             <>
               {/* Public Standard Shopping Links */}
-              <Link to={isAdmin ? "/admin/products" : "/products"} className="hover:text-slate-900">
+              <Link
+                to={isAdmin ? "/admin/products" : "/products"}
+                className="hover:text-slate-900"
+              >
                 Shop
               </Link>
-              <Link to={isAdmin ? "/admin/products" : "/cart"}  className="hover:text-slate-900">
+              <Link
+                to={isAdmin ? "/admin/products" : "/cart"}
+                className="hover:text-slate-900"
+              >
                 Cart
               </Link>
             </>

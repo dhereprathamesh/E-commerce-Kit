@@ -128,7 +128,7 @@ import Checkout from "../pages/Checkout";
 
 // Guard Rule Module
 import ProtectedRoute from "./ProtectedRoute";
-import AdminDashboard from "../pages/AdminDashboard";
+// import AdminDashboard from "../pages/AdminDashboard";
 import AdminProducts from "../pages/AdminProducts";
 import AdminProductCreate from "../pages/AdminProductCreate";
 import AdminOrders from "../pages/AdminOrders";
@@ -137,6 +137,8 @@ import OrderTracking from "../pages/OrderTracking";
 import AdminPurchaseOrders from "../pages/AdminPurchaseOrders";
 import AdminSuppliers from "../pages/AdminSuppliers";
 import AdminSupplierCreate from "../pages/AdminSupplierCreate";
+import SupplierVerifyPO from "../pages/SupplierVerifyPO";
+import AdminQuotationView from "../pages/AdminQuotationView";
 
 export default function AppRoutes() {
   console.log(
@@ -146,12 +148,41 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* --- PUBLIC ROUTES --- */}
-      <Route path="/" element={<ProtectedRoute customerOnly><Home /></ProtectedRoute>} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute customerOnly>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/products" element={<ProtectedRoute customerOnly><ProductList /></ProtectedRoute>} />
-      <Route path="/products/:slug" element={<ProtectedRoute customerOnly><ProductDetail /></ProtectedRoute>} />
-      <Route path="/cart" element={<ProtectedRoute customerOnly><Cart /></ProtectedRoute>} />
+      <Route
+        path="/products"
+        element={
+          <ProtectedRoute customerOnly>
+            <ProductList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/products/:slug"
+        element={
+          <ProtectedRoute customerOnly>
+            <ProductDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute customerOnly>
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/verify-po" element={<SupplierVerifyPO />} />
 
       {/* --- PROTECTED CUSTOMER ROUTES --- */}
       <Route
@@ -249,6 +280,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute adminOnly={true}>
             <AdminSupplierCreate />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/quotations"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminQuotationView />
           </ProtectedRoute>
         }
       />
