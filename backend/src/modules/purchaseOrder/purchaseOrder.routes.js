@@ -11,7 +11,10 @@ router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
 router.get("/products/:supplierId", controller.getSupplierProducts);
 // Secure supplier interaction workflow loops
-router.post("/verify-link", controller.verifySupplierLink);
-router.post("/execute-action", controller.executeSupplierAction);
+router.post("/request-otp", controller.requestOtpLink);
+router.post("/verify-otp", controller.verifyOtpCode);
+router.post("/submit-quotation", controller.saveQuotationFields);
+
+router.post("/quotations/:id/approve", controller.approveQuotation);
 
 module.exports = router;

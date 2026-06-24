@@ -1,15 +1,22 @@
-const nodemailer = require('nodemailer')
+const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-})
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
-
-const sendOrganizationInvite = async (toEmail, inviterName, orgName, inviteToken) => {
+const sendOrganizationInvite = async (
+  toEmail,
+  inviterName,
+  orgName,
+  inviteToken,
+) => {
   // In production, this URL points to your React frontend route
   const inviteLink = `${process.env.FRONTEND_URL}/invites/accept?token=${inviteToken}`;
 
@@ -39,7 +46,7 @@ const sendVerificationEmail = async (email, code) => {
   await transporter.sendMail({
     from: `"Auth Service" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: 'Verify your email address',
+    subject: "Verify your email address",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Email Verification</h2>
@@ -51,18 +58,15 @@ const sendVerificationEmail = async (email, code) => {
         <p>This code expires in 15 minutes.</p>
         <p>If you didn't request this, ignore this email.</p>
       </div>
-    `
-  })
-}
+    `,
+  });
+};
 
-/**
- * Sends password reset code
- */
 const sendPasswordResetEmail = async (email, code) => {
   await transporter.sendMail({
     from: `"Auth Service" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: 'Password reset code',
+    subject: "Password reset code",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Password Reset</h2>
@@ -74,12 +78,26 @@ const sendPasswordResetEmail = async (email, code) => {
         <p>This code expires in 15 minutes.</p>
         <p>If you didn't request this, ignore this email.</p>
       </div>
-    `
-  })
-}
+    `,
+  });
+};
 
+const sendEmail = async ({ to, subject, html }) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      html,
+    });
+  } catch (err) {
+    console.log("Email error:", err.message);
+    throw err;
+  }
+};
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
-  sendOrganizationInvite
-}
+  sendOrganizationInvite,
+  sendEmail,
+};

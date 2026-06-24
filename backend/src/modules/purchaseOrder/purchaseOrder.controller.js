@@ -25,12 +25,25 @@ const create = async (req, res) => {
 };
 
 // GET ALL
+// const getAll = async (req, res) => {
+//   try {
+//     const orders = await service.getAllPurchaseOrders();
+//     res.status(200).json(orders);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+// GET ALL (Updated to accept view and status filter parameters)
 const getAll = async (req, res) => {
   try {
-    const orders = await service.getAllPurchaseOrders();
+    const { view, status } = req.query;
+
+    const orders = await service.getAllPurchaseOrders({ view, status });
+
     res.status(200).json(orders);
   } catch (error) {
-    console.error(error);
+    console.error("GET ALL PURCHASE ORDERS ERROR:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -154,6 +167,71 @@ const getSupplierProducts = async (req, res) => {
   }
 };
 
+const requestOtpLink = async (req, res) => {
+  try {
+    res
+      .status(200)
+      .json(await service.generateOtpForOrder(req.body.token, req.body.email));
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const verifyOtpCode = async (req, res) => {
+  try {
+    const order = await service.verifyOtpAndGetOrder(
+      req.body.poId,
+      req.body.otpCode,
+    );
+    const sessionToken = jwt.sign(
+      { poId: order.id },
+      process.env.JWT_SECRET || "fallback",
+      { expiresIn: "30m" },
+    );
+    res.cookie("po_session", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 60 * 1000,
+    });
+    res.status(200).json({ purchaseOrder: order });
+  } catch (err) {
+    res.status(401).json({ message: err.message });
+  }
+};
+
+const saveQuotationFields = async (req, res) => {
+  try {
+    const { poId, items } = req.body;
+
+    if (!poId) {
+      return res.status(400).json({ message: "poId missing" });
+    }
+
+    const result = await service.submitSupplierQuotation(poId, items);
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const approveQuotation = async (req, res) => {
+  try {
+    const { id } = req.params; // This will be the supplierQuotationId
+
+    const result = await service.approveQuotationAndNotify(id);
+    res.status(200).json({
+      message:
+        "Quotation approved and notification emails dispatched successfully.",
+      data: result,
+    });
+  } catch (error) {
+    console.error("APPROVE QUOTATION ERROR:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   create,
   getAll,
@@ -163,4 +241,8 @@ module.exports = {
   verifySupplierLink,
   executeSupplierAction,
   getSupplierProducts,
+  requestOtpLink,
+  verifyOtpCode,
+  saveQuotationFields,
+  approveQuotation,
 };

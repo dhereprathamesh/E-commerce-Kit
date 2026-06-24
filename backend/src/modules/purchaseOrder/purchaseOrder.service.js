@@ -1,6 +1,7 @@
 const prisma = require("../../config/db");
 const crypto = require("crypto");
 const { sendEmail } = require("../notifications/email.service");
+const { PurchaseOrderStatus } = require("@prisma/client");
 // Import your custom sendEmail utility // <-- Double check this relative path matches your directory structure
 
 const includeConfig = {
@@ -169,8 +170,29 @@ const getProductsBySupplierId = async (supplierId) => {
 };
 
 // GET ALL
-const getAllPurchaseOrders = async () => {
-  return prisma.purchaseOrder.findMany({ include: includeConfig });
+// const getAllPurchaseOrders = async () => {
+//   return prisma.purchaseOrder.findMany({ include: includeConfig });
+// };
+
+// GET ALL (Updated to handle conditional filtering)
+const getAllPurchaseOrders = async ({ view, status } = {}) => {
+  const whereCondition = {};
+
+  if (view === "quotations") {
+    // optional customization filter condition can be placed here
+  }
+
+  if (status && status !== "ALL") {
+    whereCondition.status = status;
+  }
+
+  return prisma.purchaseOrder.findMany({
+    where: whereCondition,
+    include: includeConfig,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 };
 
 // GET BY ID
@@ -197,6 +219,194 @@ const deletePurchaseOrder = async (id) => {
   return { message: "Purchase Order deleted successfully" };
 };
 
+const generateOtpForOrder = async (rawToken, supplierEmail) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+
+  const orders = await prisma.purchaseOrder.findMany({
+    where: {
+      OR: [{ status: "PENDING" }, { status: "OTP_SENT" }],
+    },
+    include: includeConfig,
+  });
+
+  const order = orders.find((o) => {
+    try {
+      const meta = JSON.parse(o.notes || "{}");
+
+      return (
+        meta.hashedToken === hashedToken &&
+        new Date(meta.expiresAt) > new Date() &&
+        o.supplier.email.toLowerCase().trim() ===
+          supplierEmail.toLowerCase().trim()
+      );
+    } catch {
+      return false;
+    }
+  });
+
+  // if (!order) {
+  //   throw new Error("Invalid or expired connection token.");
+  // }
+
+  const meta = JSON.parse(order.notes || "{}");
+
+  if (
+    order.supplier.email.toLowerCase().trim() !==
+    supplierEmail.toLowerCase().trim()
+  ) {
+    throw new Error("Access Denied: Email mismatch validation.");
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  await prisma.purchaseOrder.update({
+    where: { id: order.id },
+    data: {
+      otpCode: otp,
+      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      status: "OTP_SENT",
+    },
+  });
+
+  await sendEmail({
+    to: order.supplier.email,
+    subject: `Your Secure OTP Passcode: ${otp}`,
+    html: `<p>Your OTP is <b>${otp}</b></p>`,
+  });
+
+  return { poId: order.id };
+};
+
+const verifyOtpAndGetOrder = async (poId, otpCode) => {
+  const order = await prisma.purchaseOrder.findUnique({
+    where: { id: poId },
+    include: includeConfig,
+  });
+  if (
+    !order ||
+    order.otpCode !== otpCode ||
+    new Date(order.otpExpiresAt) < new Date()
+  ) {
+    throw new Error("Invalid or expired OTP passcode validation setup.");
+  }
+  return order;
+};
+
+const submitSupplierQuotation = async (poId, itemsPayload) => {
+  const purchaseOrder = await prisma.purchaseOrder.findUnique({
+    where: { id: poId },
+  });
+  if (!purchaseOrder) throw new Error("Target Purchase Order not found.");
+
+  const totalQuotedCost = itemsPayload.reduce((sum, item) => {
+    return (
+      sum + (item.isAvailable ? item.quotedQuantity * item.quotedPrice : 0)
+    );
+  }, 0);
+
+  return prisma.$transaction(async (tx) => {
+    const quotation = await tx.supplierQuotation.create({
+      data: {
+        purchaseOrderId: poId,
+        supplierId: purchaseOrder.supplierId,
+        totalQuotedCost,
+        items: {
+          create: itemsPayload.map((i) => ({
+            productId: i.productId,
+            quotedQuantity: parseInt(i.quotedQuantity),
+            quotedPrice: parseFloat(i.quotedPrice),
+            isAvailable: i.isAvailable,
+          })),
+        },
+      },
+    });
+
+    await tx.purchaseOrder.update({
+      where: { id: poId },
+      data: {
+        status: PurchaseOrderStatus.QUOTED,
+        otpCode: null,
+        otpExpiresAt: null,
+      },
+    });
+
+    return quotation;
+  });
+};
+
+const getAllQuotationsWithDetails = async () => {
+  return prisma.supplierQuotation.findMany({
+    include: {
+      supplier: true,
+      purchaseOrder: true,
+      items: { include: { product: true } },
+    },
+  });
+};
+
+const approveQuotationAndNotify = async (purchaseOrderId) => {
+  // 1. Fetch quotation metadata matching the incoming purchaseOrderId
+  const quotation = await prisma.supplierQuotation.findFirst({
+    where: { purchaseOrderId: purchaseOrderId },
+    include: {
+      supplier: true,
+      purchaseOrder: true,
+    },
+  });
+
+  if (!quotation) {
+    throw new Error(
+      `Target supplier quotation not found for Purchase Order ID: ${purchaseOrderId}`,
+    );
+  }
+
+  // 2. Perform DB update safely inside a transaction block
+  const updatedOrder = await prisma.$transaction(async (tx) => {
+    return tx.purchaseOrder.update({
+      where: { id: purchaseOrderId },
+      data: { status: "APPROVED" },
+    });
+  });
+
+  // 3. Dispatch Emails Asynchronously
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@yourcompany.com";
+  const supplierEmail = quotation.supplier?.email;
+
+  // Email payload for Supplier
+  if (supplierEmail) {
+    sendEmail({
+      to: supplierEmail,
+      subject: `Quotation Approved: Purchase Order #${quotation.purchaseOrderId.slice(0, 8).toUpperCase()}`,
+      html: `
+        <h3>Hello ${quotation.supplier.name},</h3>
+        <p>Your submitted quotation for Purchase Order reference <b>#${quotation.purchaseOrderId.toUpperCase()}</b> has been officially <strong>APPROVED</strong> by our administration team.</p>
+        <p><b>Total Approved Valuation:</b> $${quotation.totalQuotedCost.toFixed(2)}</p>
+        <p>We will contact you shortly regarding shipment operations details.</p>
+      `,
+    }).catch((err) =>
+      console.error("Supplier notification email failed:", err.message),
+    );
+  }
+
+  // Email payload for Admin receipt verification loop
+  sendEmail({
+    to: adminEmail,
+    subject: `[CONFIRMATION] Quotation Approved - Order #${quotation.purchaseOrderId.slice(0, 8).toUpperCase()}`,
+    html: `
+      <h3>Administrative Approval Confirmation</h3>
+      <p>Quotation <b>#${quotation.id}</b> linked to Purchase Order <b>#${quotation.purchaseOrderId}</b> has been successfully approved.</p>
+      <p><b>Vendor:</b> ${quotation.supplier?.name} (${supplierEmail})</p>
+      <p><b>Total Amount booked:</b> $${quotation.totalQuotedCost.toFixed(2)}</p>
+    `,
+  }).catch((err) =>
+    console.error("Admin verification receipt email failed:", err.message),
+  );
+
+  return updatedOrder;
+};
 module.exports = {
   createPurchaseOrder,
   getAllPurchaseOrders,
@@ -206,4 +416,9 @@ module.exports = {
   verifyOrderAccess,
   updateStatusBySupplier,
   getProductsBySupplierId,
+  generateOtpForOrder,
+  verifyOtpAndGetOrder,
+  submitSupplierQuotation,
+  getAllQuotationsWithDetails,
+  approveQuotationAndNotify,
 };

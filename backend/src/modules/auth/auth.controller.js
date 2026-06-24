@@ -1,8 +1,8 @@
 const bcrypt = require("bcryptjs");
 
 const prisma = require("../../config/db");
-const emailService = require('../notifications/email.service')
-const authConfig = require("../../config/auth.config")
+const emailService = require("../notifications/email.service");
+const authConfig = require("../../config/auth.config");
 
 const {
   generateAccessToken,
@@ -10,12 +10,12 @@ const {
 } = require("../../utils/token");
 
 const generateCode = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString() // Standardized to 8-digit code
-}
+  return Math.floor(100000 + Math.random() * 900000).toString(); // Standardized to 8-digit code
+};
 
 const getExpiry = (minutes) => {
-  return new Date(Date.now() + minutes * 60 * 1000)
-}
+  return new Date(Date.now() + minutes * 60 * 1000);
+};
 
 const register = async (req, res, next) => {
   try {
@@ -48,10 +48,10 @@ const register = async (req, res, next) => {
       data: {
         userId: user.id,
         code,
-        type: 'EMAIL_VERIFICATION',
-        expiresAt: getExpiry(authConfig.verification.expiryMinutes || 60)
-      }
-    })
+        type: "EMAIL_VERIFICATION",
+        expiresAt: getExpiry(authConfig.verification.expiryMinutes || 60),
+      },
+    });
 
     // Ensure this matches your email layout method name
     await emailService.sendVerificationEmail(email, code);
@@ -102,6 +102,7 @@ const login = async (req, res, next) => {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
+    console.log(user);
 
     res.json({
       success: true,
