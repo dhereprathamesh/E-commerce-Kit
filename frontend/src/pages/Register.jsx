@@ -21,7 +21,14 @@ export default function Register() {
   });
 
   // --- Store & Navigation ---
-  const { register, verifyOtp, sendVerificationOtp, loading, error, clearError } = useAuthStore();
+  const {
+    register,
+    verifyOtp,
+    sendVerificationOtp,
+    loading,
+    error,
+    clearError,
+  } = useAuthStore();
   const navigate = useNavigate();
   const otpInputRefs = useRef([]);
 
@@ -47,13 +54,14 @@ export default function Register() {
     }
 
     const result = await register(name, email, password);
-    
+
     if (result?.success) {
       setModal({
         isOpen: true,
         type: "success",
         title: "Registration Successful!",
-        message: "We have sent a 6-digit verification code to your email address.",
+        message:
+          "We have sent a 6-digit verification code to your email address.",
         onConfirm: () => {
           setModal((prev) => ({ ...prev, isOpen: false }));
           setStep(2); // Move to OTP layout
@@ -64,7 +72,8 @@ export default function Register() {
         isOpen: true,
         type: "error",
         title: "Registration Failed",
-        message: result?.error || "Could not complete registration. Please try again.",
+        message:
+          result?.error || "Could not complete registration. Please try again.",
         onConfirm: () => setModal((prev) => ({ ...prev, isOpen: false })),
       });
     }
@@ -129,7 +138,7 @@ export default function Register() {
     setValidationError("");
     setOtp(new Array(6).fill(""));
     otpInputRefs.current[0]?.focus();
-    
+
     const result = await sendVerificationOtp(email);
     if (result?.success) {
       setModal({
@@ -145,15 +154,21 @@ export default function Register() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        
         {/* --- STEP 1: REGISTRATION FORM --- */}
         {step === 1 && (
           <>
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Create an Account</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+                Create an Account
+              </h2>
               <p className="mt-2 text-sm text-slate-600">
                 Already have an account?{" "}
-                <Link to="/login" className="font-medium text-blue-600 hover:underline">Sign in</Link>
+                <Link
+                  to="/login"
+                  className="font-medium text-blue-600 hover:underline"
+                >
+                  Sign in
+                </Link>
               </p>
             </div>
 
@@ -166,7 +181,12 @@ export default function Register() {
 
               <div className="space-y-4 rounded-md shadow-sm">
                 <div>
-                  <label htmlFor="full-name" className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                  <label
+                    htmlFor="full-name"
+                    className="block text-sm font-medium text-slate-700 mb-1"
+                  >
+                    Full Name
+                  </label>
                   <input
                     id="full-name"
                     type="text"
@@ -179,7 +199,12 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label htmlFor="email-address" className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                  <label
+                    htmlFor="email-address"
+                    className="block text-sm font-medium text-slate-700 mb-1"
+                  >
+                    Email Address
+                  </label>
                   <input
                     id="email-address"
                     type="email"
@@ -192,7 +217,12 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-slate-700 mb-1"
+                  >
+                    Password
+                  </label>
                   <input
                     id="password"
                     type="password"
@@ -222,9 +252,11 @@ export default function Register() {
         {step === 2 && (
           <>
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Verify your email</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+                Verify your email
+              </h2>
               <p className="mt-2 text-sm text-slate-600">
-                We've sent a 6-digit verification code to <br />
+                We&apos;ve sent a 6-digit verification code to <br />
                 <span className="font-semibold text-slate-900">{email}</span>
               </p>
             </div>
@@ -261,7 +293,9 @@ export default function Register() {
                 </button>
 
                 <div className="text-center text-sm">
-                  <span className="text-slate-600">Didn't receive the code? </span>
+                  <span className="text-slate-600">
+                    Didn&apos;t receive the code?{" "}
+                  </span>
                   <button
                     type="button"
                     onClick={handleResendCode}
@@ -281,19 +315,38 @@ export default function Register() {
       {modal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="w-full max-w-sm transform overflow-hidden rounded-xl bg-white p-6 text-center shadow-xl transition-all">
-            
             {/* Modal Conditional Icon */}
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14">
               {modal.type === "success" ? (
                 <div className="rounded-full bg-green-100 p-3 text-green-600">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </div>
               ) : (
                 <div className="rounded-full bg-red-100 p-3 text-red-600">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </div>
               )}
@@ -301,7 +354,9 @@ export default function Register() {
 
             {/* Modal Copy text */}
             <div className="mt-4">
-              <h3 className="text-lg font-bold text-slate-900 leading-6">{modal.title}</h3>
+              <h3 className="text-lg font-bold text-slate-900 leading-6">
+                {modal.title}
+              </h3>
               <p className="mt-2 text-sm text-slate-500">{modal.message}</p>
             </div>
 
@@ -311,15 +366,14 @@ export default function Register() {
                 type="button"
                 onClick={modal.onConfirm}
                 className={`w-full inline-flex justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-                  modal.type === "success" 
-                    ? "bg-green-600 hover:bg-green-700 focus:ring-green-500" 
+                  modal.type === "success"
+                    ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
                     : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
                 }`}
               >
                 Continue
               </button>
             </div>
-
           </div>
         </div>
       )}
