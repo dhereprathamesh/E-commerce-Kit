@@ -49,12 +49,7 @@ export const useProductStore = create((set) => ({
   submitLoading: false,
   globalError: null,
   fieldErrors: {},
-  pagination: {
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 1,
-  },
+  pagination: {},
 
   clearErrors: () => set({ globalError: null, fieldErrors: {} }),
 
@@ -93,7 +88,12 @@ export const useProductStore = create((set) => ({
 
       set({
         products: productsRes.data.data.products,
-        pagination: productsRes.data.data.pagination,
+        pagination: {
+          page: productsRes.data.data.page,
+          limit: productsRes.data.data.limit,
+          total: productsRes.data.data.total,
+          totalPages: productsRes.data.data.totalPages,
+        },
         categories: categoriesRes.data.data,
         loading: false,
       });
