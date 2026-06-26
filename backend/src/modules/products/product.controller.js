@@ -5,6 +5,7 @@ const {
   updateProduct,
   deleteProduct,
   uploadImage,
+  bulkCreateProducts,
 } = require("./product.service");
 
 const create = async (req, res, next) => {
@@ -102,6 +103,29 @@ const uploadProductImage = async (req, res, next) => {
   }
 };
 
+const bulkUpload = async (req, res, next) => {
+  try {
+    // Validate if a file was actually provided in the request
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please upload a CSV file.",
+      });
+    }
+
+    // Execute bulk processing service
+    const resultSummary = await bulkCreateProducts(req.file.buffer);
+
+    return res.status(200).json({
+      success: true,
+      message: "Bulk upload processing completed successfully.",
+      summary: resultSummary,
+    });
+  } catch (error) {
+    next(error); // Hand off to global error handler
+  }
+};
+
 module.exports = {
   create,
   getAll,
@@ -109,4 +133,5 @@ module.exports = {
   update,
   remove,
   uploadProductImage,
+  bulkUpload,
 };
