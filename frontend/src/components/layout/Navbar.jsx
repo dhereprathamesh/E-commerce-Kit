@@ -1,9 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom"; // 1. Imported NavLink here
 import { useAuthStore } from "../../store/authStore";
 
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const isAdmin = user?.userType === "ADMIN";
+
+  // 2. Extracted the styling rule into a clean helper string
+  const activeTabClass = ({ isActive }) =>
+    isActive
+      ? "font-semibold text-blue-600"
+      : "text-slate-600 hover:text-slate-900 transition-colors";
 
   return (
     <nav className="relative z-0 border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
@@ -21,49 +27,46 @@ export default function Navbar() {
           )}
         </Link>
 
-        <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
+        <div className="flex items-center gap-4 text-sm font-medium">
           {/* --- CONDITIONALLY RENDERED LINKS --- */}
           {isAdmin ? (
             <>
-              {/* Admin Backoffice Navigation Links */}
-              {/* <Link to="/admin/dashboard" className="hover:text-slate-900">
-                Dashboard
-              </Link> */}
-              <Link to="/admin/products" className="hover:text-slate-900">
+              {/* Admin Backoffice Navigation Links transformed to NavLinks */}
+              <NavLink to="/admin/products" className={activeTabClass}>
                 Products
-              </Link>
-              <Link to="/admin/orders" className="hover:text-slate-900">
+              </NavLink>
+              
+              <NavLink to="/admin/orders" className={activeTabClass}>
                 Orders
-              </Link>
-              <Link
-                to="/admin/suppliers"
-                className="hover:text-slate-900 font-semibold text-blue-600"
-              >
+              </NavLink>
+              
+              <NavLink to="/admin/suppliers" className={activeTabClass}>
                 Suppliers
-              </Link>
-              <Link to="/admin/purchase-orders">Purchase Orders</Link>
-              <Link
-                to="/admin/quotations"
-                className="text-slate-900 font-semibold"
-              >
+              </NavLink>
+              
+              <NavLink to="/admin/purchase-orders" className={activeTabClass}>
+                Purchase Orders
+              </NavLink>
+              
+              <NavLink to="/admin/quotations" className={activeTabClass}>
                 Quotations
-              </Link>
+              </NavLink>
             </>
           ) : (
             <>
-              {/* Public Standard Shopping Links */}
-              <Link
+              {/* Public Standard Shopping Links transformed to NavLinks */}
+              <NavLink
                 to={isAdmin ? "/admin/products" : "/products"}
-                className="hover:text-slate-900"
+                className={activeTabClass}
               >
                 Shop
-              </Link>
-              <Link
+              </NavLink>
+              <NavLink
                 to={isAdmin ? "/admin/products" : "/cart"}
-                className="hover:text-slate-900"
+                className={activeTabClass}
               >
                 Cart
-              </Link>
+              </NavLink>
             </>
           )}
 
@@ -71,7 +74,7 @@ export default function Navbar() {
           {user ? (
             <>
               {!isAdmin && (
-                <Link to="/profile" className="hover:text-slate-900">
+                <Link to="/profile" className="text-slate-600 hover:text-slate-900">
                   Hi, {user.name}
                 </Link>
               )}
@@ -89,7 +92,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="hover:text-slate-900">
+              <Link to="/login" className="text-slate-600 hover:text-slate-900">
                 Sign In
               </Link>
               <Link
