@@ -11,6 +11,10 @@ export default function ProductInventoryTable({
   pagination,
   // openCreateModal,
 }) {
+  const limit = pagination?.limit ?? 10;
+  const total = pagination?.total ?? 0;
+  const totalPages = pagination?.totalPages ?? 1;
+
   return (
     <div className="space-y-6">
       {/* Inventory Scroll-Bound Table Card */}
@@ -173,17 +177,14 @@ export default function ProductInventoryTable({
             <p className="text-sm text-slate-500">
               Showing{" "}
               <span className="font-medium">
-                {pagination?.total === 0
-                  ? 0
-                  : (page - 1) * pagination?.limit + 1}
+                {pagination?.total === 0 ? 0 : (page - 1) * limit + 1}
               </span>{" "}
               -
               <span className="font-medium">
                 {" "}
-                {Math.min(page * pagination?.limit, pagination?.total)}
+                {Math.min(page * limit, total)}
               </span>{" "}
-              of <span className="font-medium">{pagination?.total}</span>{" "}
-              products
+              of <span className="font-medium">{total}</span> products
             </p>
 
             <div className="flex items-center gap-2">
@@ -210,7 +211,7 @@ export default function ProductInventoryTable({
               ))}
 
               <button
-                disabled={page === pagination?.totalPages}
+                disabled={page >= totalPages || products.length < limit}
                 onClick={() => setPage(page + 1)}
                 className="rounded border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-slate-50"
               >
