@@ -6,7 +6,7 @@ export default function Layout({ children }) {
   console.log("Layout.js");
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />

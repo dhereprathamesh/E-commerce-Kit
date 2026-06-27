@@ -48,8 +48,13 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 6) {
-      setValidationError("Password must be at least 6 characters long.");
+    // Enforces: Min 8 chars, at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      setValidationError(
+        "Password must be at least 8 characters long and include uppercase and lowercase letters, numbers, and symbols."
+      );
       return;
     }
 
@@ -150,9 +155,9 @@ export default function Register() {
       });
     }
   };
-
+  {/* FIXED WRAPPER: Explicitly tracks remaining viewport height minus navbar to center content perfectly */}
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-[calc(100vh-170px)] items-center justify-center bg-slate-50 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         {/* --- STEP 1: REGISTRATION FORM --- */}
         {step === 1 && (
@@ -207,7 +212,7 @@ export default function Register() {
                   </label>
                   <input
                     id="email-address"
-                    type="email"
+                    type="text" // Changed from email to prevent browser validation fighting custom backend schemas
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
