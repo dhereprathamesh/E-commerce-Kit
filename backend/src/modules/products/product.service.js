@@ -108,7 +108,6 @@ const getProducts = async ({
 const getProductBySlug = async (slug) => {
   return prisma.product.findUnique({
     where: { slug },
-
     include: {
       category: true,
       variants: true,
