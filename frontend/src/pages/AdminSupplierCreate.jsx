@@ -21,8 +21,8 @@ export default function AdminSupplierCreate() {
         const res = await api.get("/products");
         if (Array.isArray(res.data)) {
           setAvailableProducts(res.data);
-        } else if (res.data && Array.isArray(res.data.data)) {
-          setAvailableProducts(res.data.data);
+        } else if (res.data && Array.isArray(res.data.data?.products)) {
+          setAvailableProducts(res.data.data?.products);
         } else {
           setAvailableProducts([]);
         }
@@ -69,8 +69,16 @@ export default function AdminSupplierCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const MAX_NAME_LENGTH = 50; // Define your character limit here
+
+    // Validation checks
     if (!name.trim()) return setError("Supplier name required.");
-    if (!email.trim()) return setError("Supplier email required."); // <-- Validation check
+    if (name.length > MAX_NAME_LENGTH) {
+      return setError(
+        `Supplier name cannot exceed ${MAX_NAME_LENGTH} characters.`,
+      );
+    }
+    if (!email.trim()) return setError("Supplier email required.");
 
     try {
       setLoading(true);
@@ -124,6 +132,7 @@ export default function AdminSupplierCreate() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={50}
             placeholder="e.g. Apex Global Trading"
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             disabled={loading}

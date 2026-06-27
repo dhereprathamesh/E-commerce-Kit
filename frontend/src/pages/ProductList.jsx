@@ -80,7 +80,7 @@ export default function ProductList() {
         if (searchQuery) params.append("search", searchQuery);
 
         const response = await api.get(`/products?${params.toString()}`);
-        setProducts(response.data?.data || response.data || []);
+        setProducts(response.data?.data?.products || response.data || []);
       } catch (err) {
         console.error("Error compiling product listing array:", err);
       } finally {
