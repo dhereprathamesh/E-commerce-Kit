@@ -24,13 +24,37 @@ const create = async (req, res) => {
 };
 
 // GET ALL
+// const getAll = async (req, res) => {
+//   try {
+//     const suppliers = await service.getAllSuppliers();
+//     res.status(200).json(suppliers);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 const getAll = async (req, res) => {
   try {
-    const suppliers = await service.getAllSuppliers();
-    res.status(200).json(suppliers);
+    // Fall back to page 1 and limit 10 if query parameters are missing
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const { suppliers, pagination } = await service.getAllSuppliers(
+      page,
+      limit,
+    );
+
+    // Return both the page data and the pagination metadata
+    res.status(200).json({
+      data: suppliers,
+      pagination,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching paginated suppliers:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to load suppliers." });
   }
 };
 
