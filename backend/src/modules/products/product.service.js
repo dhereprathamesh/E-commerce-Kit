@@ -31,6 +31,7 @@ const createProduct = async (data) => {
       comparePrice: data.comparePrice ? Number(data.comparePrice) : null,
       stock: Number(data.stock),
       categoryId: data.categoryId,
+      images: data.images || [],
     },
   });
 };
@@ -90,7 +91,7 @@ const getProducts = async ({
         category: true,
       },
       orderBy: {
-        createdAt: "desc",
+        name: "asc",
       },
     }),
 
