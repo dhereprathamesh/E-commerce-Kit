@@ -1,43 +1,3 @@
-// import { useEffect, useState } from "react";
-// import api from "../services/api";
-// import ProductCard from "../components/product/ProductCard";
-
-// export default function ProductList() {
-//   const [products, setProducts] = useState([]);
-//   const [search, setSearch] = useState("");
-
-//   useEffect(() => {
-//     loadProducts();
-//   }, []);
-
-//   const loadProducts = async () => {
-//     const res = await api.get("/products");
-//     setProducts(res.data.products || []);
-//   };
-
-//   const filtered = products.filter((p) =>
-//     p.name.toLowerCase().includes(search.toLowerCase()),
-//   );
-
-//   return (
-//     <div className="max-w-6xl mx-auto p-4 space-y-6">
-//       {/* SEARCH */}
-//       <input
-//         value={search}
-//         onChange={(e) => setSearch(e.target.value)}
-//         placeholder="Search products..."
-//         className="border p-2 w-full rounded"
-//       />
-
-//       {/* GRID */}
-//       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-//         {filtered.map((p) => (
-//           <ProductCard key={p.id} product={p} />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import FilterSidebar from "../components/layout/FilterSidebar";
@@ -107,14 +67,40 @@ export default function ProductList() {
             Discover quality and tailored configurations.
           </p>
         </div>
-        <div className="w-full md:w-80">
+        <div className="relative w-full md:w-80">
           <input
             type="text"
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-md border border-slate-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            /* Added pr-10 to prevent text from shifting behind the button */
+            className="w-full rounded-md border border-slate-300 pl-4 pr-10 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          
+          {/* Render the clear button only when there is active text */}
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none transition-colors"
+              aria-label="Clear search"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 

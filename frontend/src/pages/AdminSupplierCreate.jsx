@@ -102,6 +102,16 @@ export default function AdminSupplierCreate() {
     }
   };
 
+  const handleSelectAllToggle = () => {
+    // If everything is already selected, clear the selection array
+    if (selectedProductIds.length === availableProducts.length) {
+      setSelectedProductIds([]);
+    } else {
+      // Otherwise, map all available product IDs to select everything
+      setSelectedProductIds(availableProducts.map((product) => product.id));
+    }
+  };
+
   return (
     <div className="mx-auto max-w-2xl p-6">
       <div className="mb-6">
@@ -156,36 +166,65 @@ export default function AdminSupplierCreate() {
 
         {/* Dynamic relational product checklist array */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Assign Authorized Catalog Items
-          </label>
-          <div className="max-h-60 overflow-y-auto rounded-md border border-slate-200 p-3 divide-y divide-slate-50 bg-slate-50/50">
-            {availableProducts.length === 0 ? (
-              <p className="text-xs text-slate-400 italic py-2">
-                No items found in global product registry.
-              </p>
-            ) : (
-              availableProducts.map((product) => (
-                <label
-                  key={product.id}
-                  className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-slate-50 px-2 rounded"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedProductIds.includes(product.id)}
-                    onChange={() => handleCheckboxChange(product.id)}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    disabled={loading}
-                  />
-                  <div className="text-sm">
-                    <p className="font-medium text-slate-800">{product.name}</p>
-                    <p className="text-xs text-slate-400 font-mono">
-                      SKU ID: #{product.id}
-                    </p>
-                  </div>
-                </label>
-              ))
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-slate-700">
+              Assign Authorized Catalog Items
+            </label>
+            
+            {/* Optional: Counter tag to show live selection metrics */}
+            {availableProducts.length > 0 && (
+              <span className="text-xs text-slate-400 font-medium">
+                {selectedProductIds.length} of {availableProducts.length} selected
+              </span>
             )}
+          </div>
+
+          <div className="rounded-md border border-slate-200 bg-white shadow-sm overflow-hidden">
+            {/* --- MASTER SELECT/DESELECT HEADER BAR --- */}
+            {availableProducts.length > 0 && (
+              <label className="flex items-center gap-3 px-5 py-2.5 bg-slate-50 border-b border-slate-200 cursor-pointer select-none hover:bg-slate-100/70 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={availableProducts.length > 0 && selectedProductIds.length === availableProducts.length}
+                  onChange={handleSelectAllToggle}
+                  disabled={loading}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  {selectedProductIds.length === availableProducts.length ? "Deselect All Items" : "Select All Items"}
+                </span>
+              </label>
+            )}
+
+            {/* --- SCROLLABLE PRODUCT LIST --- */}
+            <div className="max-h-60 overflow-y-auto p-2 divide-y divide-slate-100 bg-white">
+              {availableProducts.length === 0 ? (
+                <p className="text-xs text-slate-400 italic py-4 text-center">
+                  No items found in global product registry.
+                </p>
+              ) : (
+                availableProducts.map((product) => (
+                  <label
+                    key={product.id}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-slate-50 px-3 rounded transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedProductIds.includes(product.id)}
+                      onChange={() => handleCheckboxChange(product.id)}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      disabled={loading}
+                    />
+                    <div className="text-sm">
+                      <p className="font-medium text-slate-800">{product.name}</p>
+                      <p className="text-xs text-slate-400 font-mono">
+                        SKU ID: #{product.id}
+                      </p>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
         </div>
 

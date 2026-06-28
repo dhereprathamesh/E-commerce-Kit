@@ -57,14 +57,8 @@ export const useAuthStore = create((set) => ({
         email,
         password,
       });
-      const { user, accessToken } = response.data;
-
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", accessToken);
 
       set({
-        user: { ...user },
-        token: accessToken,
         loading: false,
       });
       return { success: true };
@@ -107,7 +101,7 @@ export const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       // Assuming your backend endpoint for resending or initiating OTP is /auth/resend-otp
-      await api.post("/auth/resend-otp", { email });
+      await api.post("/auth/resend-verification", { email });
       
       set({ loading: false });
       return { success: true };
