@@ -383,57 +383,59 @@ export default function AdminSuppliers() {
   return (
     <div className="mx-auto max-w-7xl p-6">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      {/* Header Bar */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-950">Suppliers</h1>
           <p className="text-sm text-slate-500">
             Manage vendor catalogs and external purchase streams.
           </p>
         </div>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/admin/suppliers/create");
-          }}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500 self-start sm:self-center"
-        >
-          Add Supplier
-        </button>
-      </div>
 
-      {/* New Search and Filter Control Utility Strip */}
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg
-              className="h-4 w-4 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+        {/* Cleaned layout grouping search bar and action button in a single line */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 min-w-0">
+          <div className="relative w-full sm:w-72 md:w-80">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg
+                className="h-4 w-4 text-slate-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by supplier name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-8 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            )}
           </div>
-          <input
-            type="text"
-            placeholder="Search by supplier name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-            >
-              ✕
-            </button>
-          )}
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/admin/suppliers/create");
+            }}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500 whitespace-nowrap"
+          >
+            Add Supplier
+          </button>
         </div>
       </div>
 

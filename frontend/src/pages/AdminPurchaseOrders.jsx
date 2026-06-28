@@ -23,9 +23,10 @@ export default function AdminPurchaseOrders() {
           api.get("/purchase-orders"),
           api.get("/suppliers"),
         ]);
+        console.log("supRes", supRes);
 
         setPoList(poRes.data || poRes.data?.data || []);
-        setSuppliers(supRes.data || supRes.data?.data || []);
+        setSuppliers(supRes?.data?.data || supRes?.data || []);
       } catch (err) {
         console.error(
           "Failed to load initial purchase order dependencies:",
