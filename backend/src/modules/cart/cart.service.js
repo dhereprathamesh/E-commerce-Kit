@@ -55,6 +55,9 @@ const getCart = async (userId) => {
 
     include: {
       items: {
+        orderBy: {
+          id: 'asc', // Or use 'createdAt: "asc"' if you track timestamps
+        },
         include: {
           product: true,
         },

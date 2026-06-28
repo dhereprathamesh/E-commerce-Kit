@@ -1,29 +1,8 @@
-// export default function Cart() {
-//   const cart = [];
-
-//   return (
-//     <div className="max-w-4xl mx-auto p-4">
-//       <h1 className="text-2xl font-semibold">Your Cart</h1>
-
-//       <div className="mt-6 space-y-3">
-//         {cart.length === 0 ? (
-//           <p>No items in cart</p>
-//         ) : (
-//           cart.map((item) => (
-//             <div key={item.id} className="border p-3 rounded">
-//               <div>{item.name}</div>
-//               <div>Qty: {item.qty}</div>
-//             </div>
-//           ))
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
 import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useEffect } from "react";
+import StatusModal from "../components/common/StatusModal";
+import { useState } from "react";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -31,9 +10,38 @@ export default function Cart() {
   const { items, fetchCart, updateQuantity, removeItem, getCartTotal } =
     useCartStore();
 
+  const [deleteLoading, setDeleteLoading] = useState(null);
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    type: "success", // 'success' | 'error'
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   useEffect(() => {
     fetchCart();
   }, []);
+
+  const deleteCartEntry = async (id) => {
+
+    try {
+      setDeleteLoading(id);
+      removeItem(id);
+    } catch (err) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Purge Failed",
+        message:
+          err.response?.data?.message ||
+          "Execution engine failed to purge target.",
+        onConfirm: () => setStatusModal((prev) => ({ ...prev, isOpen: false })),
+      });
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   const total = getCartTotal();
 
@@ -95,7 +103,7 @@ export default function Cart() {
                               to={`/products/${item.product?.slug}`}
                               className="font-medium text-slate-700 hover:text-slate-800"
                             >
-                              {item.name}
+                              {item.product?.name}
                             </Link>
                           </h3>
                         </div>
@@ -105,7 +113,7 @@ export default function Cart() {
                           </p>
                         )}
                         <p className="mt-1 text-sm font-medium text-slate-900">
-                          ${item.price}
+                          ${item.product?.price}
                         </p>
                       </div>
 
@@ -139,10 +147,27 @@ export default function Cart() {
                         <div className="absolute top-0 right-0">
                           <button
                             type="button"
-                            onClick={() => removeItem(item.id)}
-                            className="-m-2 inline-flex p-2 text-slate-400 hover:text-slate-500 text-sm font-medium"
+                            onClick={() => deleteCartEntry(item.id)}
+                            disabled={deleteLoading === item.id}
+                            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-rose-600 transition-colors disabled:opacity-40"
                           >
-                            Remove
+                            {deleteLoading === item.id ? (
+                              <div className="h-4 w-4 border-2 border-rose-600 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                />
+                              </svg>
+                            )}
                           </button>
                         </div>
                       </div>
@@ -192,6 +217,7 @@ export default function Cart() {
           </div>
         </section>
       </div>
+      <StatusModal {...statusModal} />
     </div>
   );
 }

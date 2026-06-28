@@ -20,7 +20,7 @@ const generateRefreshToken = (user) => {
     },
     process.env.JWT_REFRESH_SECRET,
     {
-      expiresIn: "7d",
+      expiresIn: process.env.JWT_REFRESH_EXPIRY,
     },
   );
 };

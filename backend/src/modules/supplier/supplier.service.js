@@ -5,6 +5,18 @@ const crypto = require("crypto");
 // CREATE Supplier + Product mappings
 const createSupplier = async (name, email, productIds = []) => {
   return prisma.$transaction(async (tx) => {
+    // 1. Check if a supplier with this email already exists
+    const existingSupplier = await tx.supplier.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (existingSupplier) {
+      // Throwing aborts the transaction immediately
+      throw new Error("Supplier with this email already exists");
+    }
+
     const supplier = await tx.supplier.create({
       data: {
         name,
