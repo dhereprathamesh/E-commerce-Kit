@@ -36,22 +36,25 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    // Fall back to page 1 and limit 10 if query parameters are missing
+    // Extract query parameters with standard fallbacks
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || ""; // Capture search query string
 
+    // Pass the search query straight to the service layer
     const { suppliers, pagination } = await service.getAllSuppliers(
       page,
       limit,
+      search,
     );
 
-    // Return both the page data and the pagination metadata
+    // Return filtered data along with matching metadata matrix
     res.status(200).json({
       data: suppliers,
       pagination,
     });
   } catch (error) {
-    console.error("Error fetching paginated suppliers:", error);
+    console.error("Error fetching paginated/filtered suppliers:", error);
     res
       .status(500)
       .json({ error: error.message || "Failed to load suppliers." });

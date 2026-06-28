@@ -62,13 +62,25 @@ const createSupplier = async (name, email, productIds = []) => {
 //   });
 // };
 
-const getAllSuppliers = async (page = 1, limit = 10) => {
+const getAllSuppliers = async (page = 1, limit = 10, search = "") => {
   // Calculate how many records to skip
   const skip = (page - 1) * limit;
 
-  // Run both queries concurrently to keep performance snappy
+  // Build the conditional filter statement
+  // If search exists, look inside the supplier 'name' field
+  const whereClause = search
+    ? {
+        name: {
+          contains: search,
+          mode: "insensitive", // Makes search case-insensitive (e.g., 'apple' matches 'Apple')
+        },
+      }
+    : {};
+
+  // Run both queries concurrently with the filter applied
   const [suppliers, total] = await prisma.$transaction([
     prisma.supplier.findMany({
+      where: whereClause, // Apply filter here
       skip: parseInt(skip),
       take: parseInt(limit),
       include: {
@@ -79,10 +91,12 @@ const getAllSuppliers = async (page = 1, limit = 10) => {
         },
       },
       orderBy: {
-        id: "asc", // Keeps ordering stable across pages
+        id: "asc",
       },
     }),
-    prisma.supplier.count(),
+    prisma.supplier.count({
+      where: whereClause, // Critical: Filter count too, otherwise totalPages breaks
+    }),
   ]);
 
   const totalPages = Math.ceil(total / limit);
