@@ -36,7 +36,7 @@ export default function CartDrawer({ isOpen, onClose }) {
           </div>
 
           {/* Drawer Scrollable Body Content */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 scrollbar-hide">
             {items.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-sm text-slate-500">

@@ -170,11 +170,12 @@ export default function AdminSupplierCreate() {
             <label className="block text-sm font-medium text-slate-700">
               Assign Authorized Catalog Items
             </label>
-            
+
             {/* Optional: Counter tag to show live selection metrics */}
             {availableProducts.length > 0 && (
               <span className="text-xs text-slate-400 font-medium">
-                {selectedProductIds.length} of {availableProducts.length} selected
+                {selectedProductIds.length} of {availableProducts.length}{" "}
+                selected
               </span>
             )}
           </div>
@@ -185,19 +186,24 @@ export default function AdminSupplierCreate() {
               <label className="flex items-center gap-3 px-5 py-2.5 bg-slate-50 border-b border-slate-200 cursor-pointer select-none hover:bg-slate-100/70 transition-colors">
                 <input
                   type="checkbox"
-                  checked={availableProducts.length > 0 && selectedProductIds.length === availableProducts.length}
+                  checked={
+                    availableProducts.length > 0 &&
+                    selectedProductIds.length === availableProducts.length
+                  }
                   onChange={handleSelectAllToggle}
                   disabled={loading}
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  {selectedProductIds.length === availableProducts.length ? "Deselect All Items" : "Select All Items"}
+                  {selectedProductIds.length === availableProducts.length
+                    ? "Deselect All Items"
+                    : "Select All Items"}
                 </span>
               </label>
             )}
 
             {/* --- SCROLLABLE PRODUCT LIST --- */}
-            <div className="max-h-60 overflow-y-auto p-2 divide-y divide-slate-100 bg-white">
+            <div className="max-h-60 overflow-y-auto p-2 divide-y divide-slate-100 bg-white scrollbar-hide">
               {availableProducts.length === 0 ? (
                 <p className="text-xs text-slate-400 italic py-4 text-center">
                   No items found in global product registry.
@@ -216,7 +222,9 @@ export default function AdminSupplierCreate() {
                       disabled={loading}
                     />
                     <div className="text-sm">
-                      <p className="font-medium text-slate-800">{product.name}</p>
+                      <p className="font-medium text-slate-800">
+                        {product.name}
+                      </p>
                       <p className="text-xs text-slate-400 font-mono">
                         SKU ID: #{product.id}
                       </p>

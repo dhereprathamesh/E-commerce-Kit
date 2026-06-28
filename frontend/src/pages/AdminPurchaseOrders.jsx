@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import StatusModal from "../components/common/StatusModal";
 
 export default function AdminPurchaseOrders() {
   const [poList, setPoList] = useState([]);
@@ -13,6 +14,13 @@ export default function AdminPurchaseOrders() {
     supplierId: "",
     notes: "",
     items: [{ productId: "", quantity: 1, purchasePrice: 0 }],
+  });
+
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
   });
 
   // 1. FETCH INITIAL DATA (Purchase Orders & Suppliers Registry)
@@ -102,12 +110,27 @@ export default function AdminPurchaseOrders() {
   // SUBMIT COMPLETED FORM TO BACKEND API
   const createPO = async (e) => {
     e.preventDefault();
-    if (!form.supplierId) return alert("Please select a supplier first.");
+    if (!form.supplierId) {
+      setModalConfig({
+        isOpen: true,
+        type: "error",
+        title: "Selection Required",
+        message:
+          "Please select a supplier profile first before generating an order.",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
       await api.post("/purchase-orders", form);
-      alert("Purchase Order successfully generated!");
+      setModalConfig({
+        isOpen: true,
+        type: "success",
+        title: "Purchase Order Created",
+        message:
+          "The new purchase order record has been successfully generated and stored.",
+      });
 
       // Refresh historic tracking data safely
       const res = await api.get("/purchase-orders");
@@ -121,11 +144,16 @@ export default function AdminPurchaseOrders() {
       });
       setFilteredProducts([]);
     } catch (err) {
-      alert(
+      const errMsg =
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Failed to submit PO",
-      );
+        err.response?.data?.message ||
+        "Failed to submit PO";
+      setModalConfig({
+        isOpen: true,
+        type: "error",
+        title: "Submission Failed",
+        message: errMsg,
+      });
     } finally {
       setLoading(false);
     }
@@ -142,6 +170,13 @@ export default function AdminPurchaseOrders() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-50 min-h-screen">
+      <StatusModal
+        isOpen={modalConfig.isOpen}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+      />
       <div>
         <h1 className="text-2xl font-bold text-slate-950">
           Create Purchase Order
@@ -208,7 +243,7 @@ export default function AdminPurchaseOrders() {
                       className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-slate-50/60 p-3 rounded-md border border-slate-200"
                     >
                       {/* FILTERED PRODUCTS DROP-DOWN MENU CONTAINER */}
-                      <div className="w-full sm:flex-1">
+                      {/* <div className="w-full sm:flex-1">
                         <select
                           value={item.productId}
                           onChange={(e) =>
@@ -225,6 +260,36 @@ export default function AdminPurchaseOrders() {
                               {p.name}
                             </option>
                           ))}
+                        </select>
+                      </div> */}
+                      {/* FILTERED PRODUCTS DROP-DOWN MENU CONTAINER */}
+                      <div className="w-full sm:flex-1">
+                        <select
+                          value={item.productId}
+                          onChange={(e) =>
+                            updateItem(index, "productId", e.target.value)
+                          }
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+                          required
+                        >
+                          <option value="">
+                            Select mapped catalog variation...
+                          </option>
+                          {filteredProducts
+                            .filter((p) => {
+                              // 1. Check if this product ID is used in any other row
+                              const isSelectedElsewhere = form.items.some(
+                                (lineItem, i) =>
+                                  i !== index && lineItem.productId === p.id,
+                              );
+                              // 2. Only return true if it's NOT selected in another row
+                              return !isSelectedElsewhere;
+                            })
+                            .map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name}
+                              </option>
+                            ))}
                         </select>
                       </div>
 
@@ -326,7 +391,7 @@ export default function AdminPurchaseOrders() {
             Dispatched Records Log ({poList.length})
           </h2>
 
-          <div className="space-y-3 overflow-y-auto max-h-[580px] pr-1">
+          <div className="space-y-3 overflow-y-auto max-h-[580px] pr-1 scrollbar-hide">
             {poList.length === 0 ? (
               <div className="text-center p-8 bg-white border border-slate-200 rounded-lg text-slate-400 text-xs">
                 No entries stored.

@@ -10,7 +10,7 @@ export default function StatusModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm !mt-0">
-      <div className="w-full max-w-sm transform overflow-hidden rounded-xl bg-white p-6 text-center shadow-xl transition-all">
+      <div className="w-full max-w-sm transform overflow-hidden rounded-xl bg-white p-6 text-center shadow-xl transition-all scrollbar-hide">
         {/* Dynamic Status Icon (Success vs Error) */}
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14">
           {type === "success" ? (

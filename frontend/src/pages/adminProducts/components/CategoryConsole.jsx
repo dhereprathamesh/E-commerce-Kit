@@ -405,7 +405,7 @@ export default function CategoryConsole({
         </form>
       </div>
 
-      <div className="md:col-span-2 bg-white border border-slate-200 rounded-lg p-4 max-h-48 overflow-y-auto">
+      <div className="md:col-span-2 bg-white border border-slate-200 rounded-lg p-4 max-h-48 overflow-y-auto scrollbar-hide">
         <label className="block text-xs uppercase font-bold text-slate-400 tracking-wider mb-2">
           Active Taxonomy Nodes
         </label>

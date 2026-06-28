@@ -19,7 +19,7 @@ export default function ProductInventoryTable({
     <div className="space-y-6">
       {/* Inventory Scroll-Bound Table Card */}
       <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse text-sm text-slate-600 table-fixed">
             <thead className="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b sticky top-0 select-none">
               <tr>
