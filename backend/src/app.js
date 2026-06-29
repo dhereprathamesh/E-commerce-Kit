@@ -18,6 +18,7 @@ const paymentRoutes = require("./modules/payments/payment.routes");
 const reviewRoutes = require("./modules/reviews/review.routes");
 const supplierRoutes = require("./modules/supplier/supplier.routes");
 const purchaseOrderRoutes = require("./modules/purchaseOrder/purchaseOrder.routes");
+const filterRoutes = require("./modules/filter/filter.routes");
 
 const authMiddleware = require("./middleware/auth.middleware");
 
@@ -60,7 +61,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/purchase-orders", purchaseOrderRoutes);
-
+app.use("/api/filters", filterRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

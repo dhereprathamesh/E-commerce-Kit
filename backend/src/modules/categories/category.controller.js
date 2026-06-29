@@ -1,5 +1,71 @@
+// const {
+//   createCategory,
+//   getAllCategories,
+//   updateCategory,
+//   deleteCategory,
+// } = require("./category.service");
+
+// const create = async (req, res, next) => {
+//   try {
+//     const category = await createCategory(req.body);
+
+//     res.status(201).json({
+//       success: true,
+//       data: category,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// const getAll = async (req, res, next) => {
+//   try {
+//     const categories = await getAllCategories();
+
+//     res.json({
+//       success: true,
+//       data: categories,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// const update = async (req, res, next) => {
+//   try {
+//     const category = await updateCategory(req.params.id, req.body);
+
+//     res.json({
+//       success: true,
+//       data: category,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// const remove = async (req, res, next) => {
+//   try {
+//     await deleteCategory(req.params.id);
+
+//     res.json({
+//       success: true,
+//       message: "Category deleted successfully",
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// module.exports = {
+//   create,
+//   getAll,
+//   update,
+//   remove,
+// };
 const {
   createCategory,
+  createSubcategory,
   getAllCategories,
   updateCategory,
   deleteCategory,
@@ -8,11 +74,16 @@ const {
 const create = async (req, res, next) => {
   try {
     const category = await createCategory(req.body);
+    res.status(201).json({ success: true, data: category });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    res.status(201).json({
-      success: true,
-      data: category,
-    });
+const createSub = async (req, res, next) => {
+  try {
+    const subcategory = await createSubcategory(req.body);
+    res.status(201).json({ success: true, data: subcategory });
   } catch (error) {
     next(error);
   }
@@ -21,11 +92,7 @@ const create = async (req, res, next) => {
 const getAll = async (req, res, next) => {
   try {
     const categories = await getAllCategories();
-
-    res.json({
-      success: true,
-      data: categories,
-    });
+    res.json({ success: true, data: categories });
   } catch (error) {
     next(error);
   }
@@ -34,11 +101,7 @@ const getAll = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const category = await updateCategory(req.params.id, req.body);
-
-    res.json({
-      success: true,
-      data: category,
-    });
+    res.json({ success: true, data: category });
   } catch (error) {
     next(error);
   }
@@ -47,19 +110,10 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     await deleteCategory(req.params.id);
-
-    res.json({
-      success: true,
-      message: "Category deleted successfully",
-    });
+    res.json({ success: true, message: "Category deleted successfully" });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = {
-  create,
-  getAll,
-  update,
-  remove,
-};
+module.exports = { create, createSub, getAll, update, remove };
