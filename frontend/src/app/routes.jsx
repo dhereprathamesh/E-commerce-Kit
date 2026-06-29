@@ -28,6 +28,7 @@ import AdminSupplierCreate from "../pages/AdminSupplierCreate";
 import SupplierVerifyPO from "../pages/SupplierVerifyPO";
 import AdminQuotationView from "../pages/AdminQuotationView";
 import AdminProducts from "../pages/adminProducts/AdminProducts";
+import CategoryManager from "../pages/categoryManager/CategoryManager";
 
 export default function AppRoutes() {
   console.log(
@@ -137,6 +138,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute adminOnly={true}>
             <AdminProductCreate />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/catgeoryManager"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <CategoryManager />
           </ProtectedRoute>
         }
       />

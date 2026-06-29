@@ -5,7 +5,7 @@ import { useAuthStore } from "../../store/authStore";
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const isAdmin = user?.userType === "ADMIN";
-  
+
   // 2. Added state to track modal visibility
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -17,7 +17,7 @@ export default function Navbar() {
   // 3. Handler to finalize the logout flow
   const handleLogoutConfirm = async () => {
     setShowLogoutModal(false); // Close modal first
-    await logout();            // Execute your authStore logout logic
+    await logout(); // Execute your authStore logout logic
   };
 
   return (
@@ -41,11 +41,24 @@ export default function Navbar() {
             {/* --- CONDITIONALLY RENDERED LINKS --- */}
             {isAdmin && (
               <>
-                <NavLink to="/admin/products" className={activeTabClass}>Products</NavLink>
-                <NavLink to="/admin/orders" className={activeTabClass}>Orders</NavLink>
-                <NavLink to="/admin/suppliers" className={activeTabClass}>Suppliers</NavLink>
-                <NavLink to="/admin/purchase-orders" className={activeTabClass}>Purchase Orders</NavLink>
-                <NavLink to="/admin/quotations" className={activeTabClass}>Quotations</NavLink>
+                <NavLink to="/admin/products" className={activeTabClass}>
+                  Products
+                </NavLink>
+                <NavLink to="/admin/catgeoryManager" className={activeTabClass}>
+                  Category Manager
+                </NavLink>
+                <NavLink to="/admin/orders" className={activeTabClass}>
+                  Orders
+                </NavLink>
+                <NavLink to="/admin/suppliers" className={activeTabClass}>
+                  Suppliers
+                </NavLink>
+                <NavLink to="/admin/purchase-orders" className={activeTabClass}>
+                  Purchase Orders
+                </NavLink>
+                <NavLink to="/admin/quotations" className={activeTabClass}>
+                  Quotations
+                </NavLink>
               </>
             )}
 
@@ -54,11 +67,18 @@ export default function Navbar() {
               <>
                 {!isAdmin && (
                   <>
-                  <NavLink to="/products" className={activeTabClass}>Shop</NavLink>
-                  <NavLink to="/cart" className={activeTabClass}>Cart</NavLink>
-                  <Link to="/profile" className="text-slate-600 hover:text-slate-900">
-                    Hi, {user.name}
-                  </Link>
+                    <NavLink to="/products" className={activeTabClass}>
+                      Shop
+                    </NavLink>
+                    <NavLink to="/cart" className={activeTabClass}>
+                      Cart
+                    </NavLink>
+                    <Link
+                      to="/profile"
+                      className="text-slate-600 hover:text-slate-900"
+                    >
+                      Hi, {user.name}
+                    </Link>
                   </>
                 )}
                 {isAdmin && (
@@ -66,7 +86,7 @@ export default function Navbar() {
                     Admin: {user.name}
                   </span>
                 )}
-                
+
                 {/* 4. MODIFIED: Intercepts onClick to open the modal instead of logging out directly */}
                 <button
                   onClick={() => setShowLogoutModal(true)}
@@ -77,8 +97,16 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-slate-600 hover:text-slate-900">Sign In</Link>
-                <Link to="/register" className="rounded-md bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800">
+                <Link
+                  to="/login"
+                  className="text-slate-600 hover:text-slate-900"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-md bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800"
+                >
                   Register
                 </Link>
               </>
@@ -90,9 +118,11 @@ export default function Navbar() {
       {/* 5. NEW: CONFIRMATION MODAL INTERFACE */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity">
-          
           {/* Modal Backdrop Clickable to Close */}
-          <div className="absolute inset-0" onClick={() => setShowLogoutModal(false)} />
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowLogoutModal(false)}
+          />
 
           {/* Modal Content Box */}
           <div className="relative w-full max-w-sm overflow-hidden rounded-lg bg-white p-6 shadow-xl border border-slate-100 transform transition-all">
@@ -100,9 +130,10 @@ export default function Navbar() {
               Confirm Logout
             </h3>
             <p className="mt-2 text-sm text-slate-500 leading-relaxed">
-              Are you sure you want to log out? You will need to sign back in to access your dashboard and profile.
+              Are you sure you want to log out? You will need to sign back in to
+              access your dashboard and profile.
             </p>
-            
+
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
