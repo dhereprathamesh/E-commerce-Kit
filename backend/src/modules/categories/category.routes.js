@@ -16,6 +16,7 @@ const express = require("express");
 const {
   create,
   createSub,
+  getSubcategories,
   getAll,
   update,
   remove,
@@ -28,6 +29,7 @@ const router = express.Router();
 router.get("/", getAll);
 router.post("/", auth, admin, create);
 router.post("/subcategory", auth, admin, createSub);
+router.get("/subcategory", getSubcategories);
 router.put("/:id", auth, admin, update);
 router.delete("/:id", auth, admin, remove);
 
