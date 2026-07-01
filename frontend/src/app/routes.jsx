@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Public Pages
-import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ProductList from "../pages/ProductList";
@@ -29,6 +28,7 @@ import SupplierVerifyPO from "../pages/SupplierVerifyPO";
 import AdminQuotationView from "../pages/AdminQuotationView";
 import AdminProducts from "../pages/adminProducts/AdminProducts";
 import CategoryManager from "../pages/categoryManager/CategoryManager";
+import Home from "../pages/Home";
 
 export default function AppRoutes() {
   console.log(

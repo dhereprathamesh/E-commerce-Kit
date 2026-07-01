@@ -2,7 +2,7 @@
 
 export default function ProductInventoryTable({
   products,
-  categories,
+  // categories,
   deleteLoading,
   openEditModal,
   handleDeleteProduct,
@@ -11,6 +11,8 @@ export default function ProductInventoryTable({
   pagination,
   // openCreateModal,
 }) {
+  console.log("products", products);
+
   const limit = pagination?.limit ?? 10;
   const total = pagination?.total ?? 0;
   const totalPages = pagination?.totalPages ?? 1;
@@ -43,10 +45,11 @@ export default function ProductInventoryTable({
                 </tr>
               ) : (
                 products.map((product) => {
+                  // const targetCategoryName =
+                  //   categories.find((c) => c.id === product.categoryId)?.name ||
+                  //   "Uncategorized";
                   const targetCategoryName =
-                    categories.find((c) => c.id === product.categoryId)?.name ||
-                    "Uncategorized";
-
+                    product.subcategory?.category?.name || "Uncategorized";
                   return (
                     <tr
                       key={product.id}
