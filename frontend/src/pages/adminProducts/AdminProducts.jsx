@@ -301,7 +301,7 @@ export default function AdminProducts() {
     );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-10">
+    <div className="p-6 max-w-7xl mx-auto space-y-10 scrollbar-hide">
       {/* GLOBAL ERROR DASHBOARD BANNER */}
       {globalError && (
         <div className="p-4 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg flex items-center justify-between">
