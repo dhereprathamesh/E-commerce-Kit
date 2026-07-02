@@ -141,7 +141,7 @@ const getMyOrders = async (userId) => {
     },
 
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 };

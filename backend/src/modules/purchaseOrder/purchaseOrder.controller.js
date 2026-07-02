@@ -1,4 +1,5 @@
 const service = require("./purchaseOrder.service");
+const notificationService = require("../notifications/notification.service");
 const jwt = require("jsonwebtoken");
 
 // CREATE (Admin triggers PO creation and secure automated email)
@@ -221,6 +222,14 @@ const approveQuotation = async (req, res) => {
     const { id } = req.params; // This will be the supplierQuotationId
 
     const result = await service.approveQuotationAndNotify(id);
+    const supplierName = result?.supplier?.name || "A supplier";
+    const purchaseOrderId = result?.purchaseOrderId || id;
+    await notificationService.createNotification({
+      title: "Quotation Approved by Supplier",
+      message: `${supplierName} has accepted and finalized the quotation details.`,
+      type: "SUPPLIER_QUOTATION_APPROVED",
+      purchaseOrderId: purchaseOrderId,
+    });
     res.status(200).json({
       message:
         "Quotation approved and notification emails dispatched successfully.",

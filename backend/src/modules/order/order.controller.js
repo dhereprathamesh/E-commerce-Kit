@@ -10,6 +10,7 @@ const {
 
 const { sendEmail } = require("../notifications/email.service");
 const { orderShippedTemplate } = require("../notifications/email.templates");
+const notificationService = require("../notifications/notification.service");
 
 const create = async (req, res, next) => {
   try {
@@ -20,6 +21,12 @@ const create = async (req, res, next) => {
 
       req.body.couponCode,
     );
+    await notificationService.createNotification({
+      title: "New Customer Order Received ",
+      message: `${customerName} has placed a new order. Total Amount: $${order.finalAmount}`,
+      type: "NEW_CUSTOMER_ORDER",
+      orderId: order.id,
+    });
 
     res.status(201).json({
       success: true,

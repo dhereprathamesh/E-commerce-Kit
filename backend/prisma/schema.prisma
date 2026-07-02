@@ -99,6 +99,7 @@ model PurchaseOrder {
   verificationTokenExpiresAt DateTime?
   quotations                 SupplierQuotation[]
   items                      PurchaseOrderItem[]
+  notifications              Notification[]
 }
 
 model PurchaseOrderItem {
@@ -354,6 +355,7 @@ model Order {
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @default(now())
   orderStatusHistories OrderStatusHistory[]
+  notifications        Notification[]
 }
 
 enum OrderStatus {
@@ -505,4 +507,27 @@ model VerificationCode {
 enum VerificationCodeType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
+}
+
+enum NotificationType {
+  NEW_CUSTOMER_ORDER
+  SUPPLIER_QUOTATION_APPROVED
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  title   String
+  message String
+  type    NotificationType
+  isRead  Boolean          @default(false)
+
+  // Optional links depending on what triggered the notification
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
